@@ -1,5 +1,5 @@
 # Order Management
-An Order Management API microservice use to put in practice DDD concepts. Uses Spring Boot, Swagger, Spring Data JPA, H2 Database.
+An Order Management API microservice that put in practice DDD concepts. Uses Spring Boot, Swagger, Spring Data JPA, H2 Database.
 
 ## Overview  
 Start your server as an simple java application  
