@@ -27,4 +27,5 @@ http://localhost:8080/
 Links to some of the articles and documentation used to implement this project:
 
 - Implementing Domain-Driven Design, Vaughn Vernon.
+- IDDD Samples https://github.com/VaughnVernon/IDDD_Samples
 - Edument CQRS Tutorial http://cqrs.nu/Tutorial
