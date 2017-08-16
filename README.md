@@ -29,3 +29,4 @@ Links to some of the articles and documentation used to implement this project:
 - Implementing Domain-Driven Design, Vaughn Vernon.
 - IDDD Samples https://github.com/VaughnVernon/IDDD_Samples
 - Edument CQRS Tutorial http://cqrs.nu/Tutorial
+- Why do commands include the entity id when creating entities? https://github.com/gregoryyoung/m-r/issues/17
