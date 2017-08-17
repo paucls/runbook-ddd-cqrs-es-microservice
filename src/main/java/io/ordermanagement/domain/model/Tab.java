@@ -1,6 +1,7 @@
 package io.ordermanagement.domain.model;
 
 import io.ordermanagement.application.OpenTab;
+import io.ordermanagement.application.PlaceOrder;
 
 class Tab implements Aggregate {
 
@@ -18,4 +19,7 @@ class Tab implements Aggregate {
         );
     }
 
+    void handle(PlaceOrder placeOrder) {
+        throw new TabNotOpen();
+    }
 }

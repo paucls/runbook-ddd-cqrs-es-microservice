@@ -5,13 +5,13 @@ import java.util.Date;
 public class TabOpened implements DomainEvent {
 
     private Date occurredOn;
-    private String id;
+    private String tabId;
     private int tableNumber;
     private String waiter;
 
-    public TabOpened(String id, int tableNumber, String waiter) {
+    TabOpened(String tabId, int tableNumber, String waiter) {
         this.occurredOn = new Date();
-        this.id = id;
+        this.tabId = tabId;
         this.tableNumber = tableNumber;
         this.waiter = waiter;
     }
@@ -21,8 +21,8 @@ public class TabOpened implements DomainEvent {
         return this.occurredOn;
     }
 
-    public String id() {
-        return id;
+    public String tabId() {
+        return tabId;
     }
 
     public int tableNumber() {
@@ -41,13 +41,13 @@ public class TabOpened implements DomainEvent {
         TabOpened tabOpened = (TabOpened) o;
 
         if (tableNumber != tabOpened.tableNumber) return false;
-        if (id != null ? !id.equals(tabOpened.id) : tabOpened.id != null) return false;
+        if (tabId != null ? !tabId.equals(tabOpened.tabId) : tabOpened.tabId != null) return false;
         return waiter != null ? waiter.equals(tabOpened.waiter) : tabOpened.waiter == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = tabId != null ? tabId.hashCode() : 0;
         result = 31 * result + tableNumber;
         result = 31 * result + (waiter != null ? waiter.hashCode() : 0);
         return result;

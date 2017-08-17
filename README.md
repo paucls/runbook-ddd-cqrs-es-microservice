@@ -29,7 +29,7 @@ Links to some of the articles and documentation used to implement this project:
 - Edument CQRS Tutorial http://cqrs.nu/Tutorial
 - Implementing Domain-Driven Design, Vaughn Vernon.
 - IDDD Samples https://github.com/VaughnVernon/IDDD_Samples
-- Why do commands include the entity id when creating entities? https://github.com/gregoryyoung/m-r/issues/17
+- Why do commands include the entity tabId when creating entities? https://github.com/gregoryyoung/m-r/issues/17
 - Should Aggregates be Event Handlers https://stackoverflow.com/questions/26876757/should-aggregates-be-event-handlers
 - CQRS + Event Sourcing – A Step by Step Overview, Daniel Whittaker http://danielwhittaker.me/2014/10/02/cqrs-step-step-guide-flow-typical-application/
 - Aggregate Root – How to Build One for CQRS and Event Sourcing, Daniel Whittaker http://danielwhittaker.me/2014/11/15/aggregate-root-cqrs-event-sourcing/
