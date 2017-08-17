@@ -1,6 +1,6 @@
 package io.ordermanagement.application;
 
-import io.ordermanagement.domain.model.OrderItem;
+import io.ordermanagement.domain.model.tab.OrderItem;
 
 import java.util.List;
 

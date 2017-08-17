@@ -1,7 +1,9 @@
-package io.ordermanagement.domain.model;
+package io.ordermanagement.domain.model.tab;
 
 import io.ordermanagement.application.OpenTab;
 import io.ordermanagement.application.PlaceOrder;
+import io.ordermanagement.domain.model.DomainEventPublisher;
+import io.ordermanagement.domain.model.tab.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

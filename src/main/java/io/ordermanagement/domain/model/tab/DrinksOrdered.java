@@ -1,4 +1,6 @@
-package io.ordermanagement.domain.model;
+package io.ordermanagement.domain.model.tab;
+
+import io.ordermanagement.domain.model.DomainEvent;
 
 import java.util.Date;
 import java.util.List;

@@ -1,4 +1,4 @@
-package io.ordermanagement.domain.model;
+package io.ordermanagement.domain.model.tab;
 
 public class OrderItem {
     private int MenuNumber;

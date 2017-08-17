@@ -1,7 +1,9 @@
-package io.ordermanagement.domain.model;
+package io.ordermanagement.domain.model.tab;
 
 import io.ordermanagement.application.OpenTab;
 import io.ordermanagement.application.PlaceOrder;
+import io.ordermanagement.domain.model.Aggregate;
+import io.ordermanagement.domain.model.DomainEventPublisher;
 
 import java.util.List;
 import java.util.stream.Collectors;

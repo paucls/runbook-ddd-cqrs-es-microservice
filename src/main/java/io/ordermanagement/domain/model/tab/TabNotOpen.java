@@ -1,4 +1,4 @@
-package io.ordermanagement.domain.model;
+package io.ordermanagement.domain.model.tab;
 
 class TabNotOpen extends RuntimeException {
 }
