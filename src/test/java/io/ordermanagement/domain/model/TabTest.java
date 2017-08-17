@@ -2,7 +2,6 @@ package io.ordermanagement.domain.model;
 
 import io.ordermanagement.application.OpenTab;
 import io.ordermanagement.application.PlaceOrder;
-import org.hibernate.criterion.Order;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,10 +20,10 @@ public class TabTest {
     private static final int testTable = 3;
     private static final String testWaiter = "John";
 
-    private static final OrderItem testDrink1 = new OrderItem();
-    private static final OrderItem testDrink2 = new OrderItem();
-    private static final OrderItem testFood1 = new OrderItem();
-    private static final OrderItem testFood2 = new OrderItem();
+    private static final OrderItem testDrink1 = new OrderItem(1, "beer", true, 3.0);
+    private static final OrderItem testDrink2 = new OrderItem(2, "juice", true, 1.0);
+    private static final OrderItem testFood1 = new OrderItem(3, "pizza", false, 8.0);
+    private static final OrderItem testFood2 = new OrderItem(4, "salad", false, 7.0);
 
     private Tab aggregate;
     private DomainEventPublisher eventPublisherMock;
@@ -44,8 +43,7 @@ public class TabTest {
 
         aggregate.handle(openTab);
 
-        verify(eventPublisherMock)
-                .publish(new TabOpened(testTabId, testTable, testWaiter));
+        verify(eventPublisherMock).publish(new TabOpened(testTabId, testTable, testWaiter));
     }
 
     @Test
@@ -56,6 +54,43 @@ public class TabTest {
         exception.expect(TabNotOpen.class);
 
         aggregate.handle(placeOrder);
+    }
+
+    @Test
+    public void can_place_drinks_order() {
+        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
+        List<OrderItem> drinks = Arrays.asList(testDrink1, testDrink2);
+        PlaceOrder placeOrder = new PlaceOrder(testTabId, drinks);
+        aggregate.handle(openTab);
+
+        aggregate.handle(placeOrder);
+
+        verify(eventPublisherMock).publish(new DrinksOrdered(testTabId, drinks));
+    }
+
+    @Test
+    public void can_place_food_order() {
+        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
+        List<OrderItem> food = Arrays.asList(testFood1, testFood2);
+        PlaceOrder placeOrder = new PlaceOrder(testTabId, food);
+        aggregate.handle(openTab);
+
+        aggregate.handle(placeOrder);
+
+        verify(eventPublisherMock).publish(new FoodOrdered(testTabId, food));
+    }
+
+    @Test
+    public void can_place_drinks_and_food_order() {
+        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
+        List<OrderItem> items = Arrays.asList(testDrink1, testFood1);
+        PlaceOrder placeOrder = new PlaceOrder(testTabId, items);
+        aggregate.handle(openTab);
+
+        aggregate.handle(placeOrder);
+
+        verify(eventPublisherMock).publish(new DrinksOrdered(testTabId, Arrays.asList(testDrink1)));
+        verify(eventPublisherMock).publish(new FoodOrdered(testTabId, Arrays.asList(testFood1)));
     }
 
 }

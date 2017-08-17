@@ -9,7 +9,7 @@ public class DrinksOrdered implements DomainEvent {
     private String tabId;
     private List<OrderItem> items;
 
-    public DrinksOrdered(String tabId, List<OrderItem> items) {
+    DrinksOrdered(String tabId, List<OrderItem> items) {
         this.occurredOn = new Date();
         this.tabId = tabId;
         this.items = items;
@@ -35,14 +35,14 @@ public class DrinksOrdered implements DomainEvent {
 
         DrinksOrdered that = (DrinksOrdered) o;
 
-        if (tabId != null ? !tabId.equals(that.tabId) : that.tabId != null) return false;
-        return items != null ? items.equals(that.items) : that.items == null;
+        if (!tabId.equals(that.tabId)) return false;
+        return items.equals(that.items);
     }
 
     @Override
     public int hashCode() {
-        int result = tabId != null ? tabId.hashCode() : 0;
-        result = 31 * result + (items != null ? items.hashCode() : 0);
+        int result = tabId.hashCode();
+        result = 31 * result + items.hashCode();
         return result;
     }
 }

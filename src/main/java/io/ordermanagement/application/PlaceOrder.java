@@ -16,4 +16,8 @@ public class PlaceOrder {
     public String getId() {
         return id;
     }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
 }
