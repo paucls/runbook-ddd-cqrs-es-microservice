@@ -1,5 +1,6 @@
 package io.cqrs.cafe.domain.model.tab;
 
+import io.cqrs.cafe.application.MarkDrinksServed;
 import io.cqrs.cafe.application.OpenTab;
 import io.cqrs.cafe.application.PlaceOrder;
 import io.cqrs.cafe.domain.model.DomainEventPublisher;
@@ -91,4 +92,15 @@ public class TabTest {
         verify(eventPublisherMock).publish(new FoodOrdered(testTabId, Collections.singletonList(testFood1)));
     }
 
+    @Test
+    public void ordered_drinks_can_be_served() {
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
+        aggregate.apply(new DrinksOrdered(testTabId, Arrays.asList(testDrink1, testDrink2)));
+        List<Integer> drinkNumbers = Arrays.asList(testDrink1.menuNumber(), testDrink2.menuNumber());
+        MarkDrinksServed markDrinksServed = new MarkDrinksServed(testTabId, drinkNumbers);
+
+        aggregate.handle(markDrinksServed);
+
+        verify(eventPublisherMock).publish(new DrinksServed(testTabId, drinkNumbers));
+    }
 }

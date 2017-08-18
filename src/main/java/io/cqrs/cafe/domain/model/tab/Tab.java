@@ -1,5 +1,6 @@
 package io.cqrs.cafe.domain.model.tab;
 
+import io.cqrs.cafe.application.MarkDrinksServed;
 import io.cqrs.cafe.application.OpenTab;
 import io.cqrs.cafe.application.PlaceOrder;
 import io.cqrs.cafe.domain.model.Aggregate;
@@ -52,7 +53,18 @@ class Tab implements Aggregate {
         }
     }
 
+    void handle(MarkDrinksServed c) {
+        DrinksServed drinksServed = new DrinksServed(c.getTabId(), c.getMenuNumbers());
+
+        domainEventPublisher.publish(drinksServed);
+    }
+
     void apply(TabOpened e) {
         this.open = true;
     }
+
+    void apply(DrinksOrdered e) {
+
+    }
+
 }
