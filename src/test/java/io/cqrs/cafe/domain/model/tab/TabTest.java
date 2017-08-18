@@ -96,11 +96,23 @@ public class TabTest {
     public void ordered_drinks_can_be_served() {
         aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
         aggregate.apply(new DrinksOrdered(testTabId, Arrays.asList(testDrink1, testDrink2)));
-        List<Integer> drinkNumbers = Arrays.asList(testDrink1.menuNumber(), testDrink2.menuNumber());
-        MarkDrinksServed markDrinksServed = new MarkDrinksServed(testTabId, drinkNumbers);
+        List<Integer> menuNumbers = Arrays.asList(testDrink1.menuNumber(), testDrink2.menuNumber());
+        MarkDrinksServed markDrinksServed = new MarkDrinksServed(testTabId, menuNumbers);
 
         aggregate.handle(markDrinksServed);
 
-        verify(eventPublisherMock).publish(new DrinksServed(testTabId, drinkNumbers));
+        verify(eventPublisherMock).publish(new DrinksServed(testTabId, menuNumbers));
+    }
+
+    @Test
+    public void can_not_serve_an_unordered_drink() {
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
+        aggregate.apply(new DrinksOrdered(testTabId, Collections.singletonList(testDrink1)));
+        List<Integer> menuNumbers = Collections.singletonList(testDrink2.menuNumber());
+        MarkDrinksServed markDrinksServed = new MarkDrinksServed(testTabId, menuNumbers);
+
+        exception.expect(DrinksNotOutstanding.class);
+
+        aggregate.handle(markDrinksServed);
     }
 }

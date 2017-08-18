@@ -6,6 +6,7 @@ import io.cqrs.cafe.application.PlaceOrder;
 import io.cqrs.cafe.domain.model.Aggregate;
 import io.cqrs.cafe.domain.model.DomainEventPublisher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ class Tab implements Aggregate {
 
     private DomainEventPublisher domainEventPublisher;
     private boolean open = false;
+    private List<Integer> outstandingDrinks = new ArrayList<>();
 
     Tab(DomainEventPublisher domainEventPublisher) {
         this.domainEventPublisher = domainEventPublisher;
@@ -54,6 +56,10 @@ class Tab implements Aggregate {
     }
 
     void handle(MarkDrinksServed c) {
+        if (!this.outstandingDrinks.containsAll(c.getMenuNumbers())) {
+            throw new DrinksNotOutstanding();
+        }
+
         DrinksServed drinksServed = new DrinksServed(c.getTabId(), c.getMenuNumbers());
 
         domainEventPublisher.publish(drinksServed);
