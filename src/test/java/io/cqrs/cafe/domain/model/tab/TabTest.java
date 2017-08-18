@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,10 +60,9 @@ public class TabTest {
 
     @Test
     public void can_place_drinks_order() {
-        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
         List<OrderItem> drinks = Arrays.asList(testDrink1, testDrink2);
         PlaceOrder placeOrder = new PlaceOrder(testTabId, drinks);
-        aggregate.handle(openTab);
 
         aggregate.handle(placeOrder);
 
@@ -71,10 +71,9 @@ public class TabTest {
 
     @Test
     public void can_place_food_order() {
-        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
         List<OrderItem> food = Arrays.asList(testFood1, testFood2);
         PlaceOrder placeOrder = new PlaceOrder(testTabId, food);
-        aggregate.handle(openTab);
 
         aggregate.handle(placeOrder);
 
@@ -83,15 +82,13 @@ public class TabTest {
 
     @Test
     public void can_place_drinks_and_food_order() {
-        OpenTab openTab = new OpenTab(testTabId, testTable, testWaiter);
-        List<OrderItem> items = Arrays.asList(testDrink1, testFood1);
-        PlaceOrder placeOrder = new PlaceOrder(testTabId, items);
-        aggregate.handle(openTab);
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
+        PlaceOrder placeOrder = new PlaceOrder(testTabId, Arrays.asList(testDrink1, testFood1));
 
         aggregate.handle(placeOrder);
 
-        verify(eventPublisherMock).publish(new DrinksOrdered(testTabId, Arrays.asList(testDrink1)));
-        verify(eventPublisherMock).publish(new FoodOrdered(testTabId, Arrays.asList(testFood1)));
+        verify(eventPublisherMock).publish(new DrinksOrdered(testTabId, Collections.singletonList(testDrink1)));
+        verify(eventPublisherMock).publish(new FoodOrdered(testTabId, Collections.singletonList(testFood1)));
     }
 
 }

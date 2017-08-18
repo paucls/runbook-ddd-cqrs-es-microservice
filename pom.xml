@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.ordermanagement</groupId>
-    <artifactId>order-management-api</artifactId>
+    <groupId>io.cqrs.cafe</groupId>
+    <artifactId>cqrs-microservice</artifactId>
     <packaging>jar</packaging>
     <name>order-management-api</name>
     <version>1.0.0</version>
