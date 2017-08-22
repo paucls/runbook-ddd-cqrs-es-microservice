@@ -70,7 +70,11 @@ class Tab implements Aggregate {
     }
 
     void apply(DrinksOrdered e) {
-
+        List<Integer> drinkNumbers = e.getItems().stream()
+                .filter(OrderItem::isDrink)
+                .map(OrderItem::menuNumber)
+                .collect(Collectors.toList());
+        this.outstandingDrinks.addAll(drinkNumbers);
     }
 
 }
