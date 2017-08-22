@@ -20,6 +20,10 @@ class Tab implements Aggregate {
         this.domainEventPublisher = domainEventPublisher;
     }
 
+    //
+    // Handle Commands
+    //
+
     void handle(OpenTab c) {
         TabOpened tabOpened = new TabOpened(
                 c.getId(),
@@ -65,6 +69,10 @@ class Tab implements Aggregate {
         domainEventPublisher.publish(drinksServed);
     }
 
+    //
+    // Apply Events
+    //
+
     void apply(TabOpened e) {
         this.open = true;
     }
@@ -75,6 +83,10 @@ class Tab implements Aggregate {
                 .map(OrderItem::menuNumber)
                 .collect(Collectors.toList());
         this.outstandingDrinks.addAll(drinkNumbers);
+    }
+
+    void apply(DrinksServed e) {
+        this.outstandingDrinks.removeAll(e.getMenuNumbers());
     }
 
 }

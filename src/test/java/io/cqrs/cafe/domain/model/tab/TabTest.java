@@ -115,4 +115,17 @@ public class TabTest {
 
         aggregate.handle(markDrinksServed);
     }
+
+    @Test
+    public void can_not_serve_an_ordered_drink_twice() {
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
+        aggregate.apply(new DrinksOrdered(testTabId, Collections.singletonList(testDrink1)));
+        aggregate.apply(new DrinksServed(testTabId, Collections.singletonList(testDrink1.menuNumber())));
+        MarkDrinksServed markDrinksServed = new MarkDrinksServed(testTabId, Collections.singletonList(testDrink1.menuNumber()));
+
+        exception.expect(DrinksNotOutstanding.class);
+
+        aggregate.handle(markDrinksServed);
+    }
+
 }
