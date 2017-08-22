@@ -1,5 +1,6 @@
 package io.cqrs.cafe.domain.model.tab;
 
+import io.cqrs.cafe.application.CloseTab;
 import io.cqrs.cafe.application.MarkDrinksServed;
 import io.cqrs.cafe.application.OpenTab;
 import io.cqrs.cafe.application.PlaceOrder;
@@ -14,7 +15,8 @@ class Tab implements Aggregate {
 
     private DomainEventPublisher domainEventPublisher;
     private boolean open = false;
-    private List<Integer> outstandingDrinks = new ArrayList<>();
+    private List<OrderItem> outstandingDrinks = new ArrayList<>();
+    private Double servedItemsValue = 0.0;
 
     Tab(DomainEventPublisher domainEventPublisher) {
         this.domainEventPublisher = domainEventPublisher;
@@ -60,13 +62,22 @@ class Tab implements Aggregate {
     }
 
     void handle(MarkDrinksServed c) {
-        if (!this.outstandingDrinks.containsAll(c.getMenuNumbers())) {
+        List<Integer> outstandingDrinkNumbers = this.outstandingDrinks.stream().map(OrderItem::menuNumber).collect(Collectors.toList());
+
+        if (!outstandingDrinkNumbers.containsAll(c.getMenuNumbers())) {
             throw new DrinksNotOutstanding();
         }
 
         DrinksServed drinksServed = new DrinksServed(c.getTabId(), c.getMenuNumbers());
 
         domainEventPublisher.publish(drinksServed);
+    }
+
+    void handle(CloseTab c) {
+        Double tipValue = c.getAmountPaid() - servedItemsValue;
+        TabClosed tabClosed = new TabClosed(c.getTabId(), c.getAmountPaid(), servedItemsValue, tipValue);
+
+        domainEventPublisher.publish(tabClosed);
     }
 
     //
@@ -78,15 +89,14 @@ class Tab implements Aggregate {
     }
 
     void apply(DrinksOrdered e) {
-        List<Integer> drinkNumbers = e.getItems().stream()
-                .filter(OrderItem::isDrink)
-                .map(OrderItem::menuNumber)
-                .collect(Collectors.toList());
-        this.outstandingDrinks.addAll(drinkNumbers);
+        this.outstandingDrinks.addAll(e.getItems());
     }
 
     void apply(DrinksServed e) {
-        this.outstandingDrinks.removeAll(e.getMenuNumbers());
+        for (Integer menuNumber : e.getMenuNumbers()) {
+            OrderItem drink = this.outstandingDrinks.stream().filter(d -> d.menuNumber() == menuNumber).findFirst().get();
+            this.servedItemsValue += drink.price();
+            this.outstandingDrinks.remove(drink);
+        }
     }
-
 }

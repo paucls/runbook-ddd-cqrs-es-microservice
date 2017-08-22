@@ -1,5 +1,6 @@
 package io.cqrs.cafe.domain.model.tab;
 
+import io.cqrs.cafe.application.CloseTab;
 import io.cqrs.cafe.application.MarkDrinksServed;
 import io.cqrs.cafe.application.OpenTab;
 import io.cqrs.cafe.application.PlaceOrder;
@@ -126,6 +127,19 @@ public class TabTest {
         exception.expect(DrinksNotOutstanding.class);
 
         aggregate.handle(markDrinksServed);
+    }
+
+    @Test
+    public void can_close_tab_with_tip() {
+        aggregate.apply(new TabOpened(testTabId, testTable, testWaiter));
+        aggregate.apply(new DrinksOrdered(testTabId, Collections.singletonList(testDrink2)));
+        aggregate.apply(new DrinksServed(testTabId, Collections.singletonList(testDrink2.menuNumber())));
+        Double amountPaid = testDrink2.price() + 0.5;
+        CloseTab closeTab = new CloseTab(testTabId, amountPaid);
+
+        aggregate.handle(closeTab);
+
+        verify(eventPublisherMock).publish(new TabClosed(testTabId, amountPaid, testDrink2.price(), 0.5));
     }
 
 }
