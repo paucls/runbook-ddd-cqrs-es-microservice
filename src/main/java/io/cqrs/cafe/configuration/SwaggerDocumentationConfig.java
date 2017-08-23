@@ -15,8 +15,8 @@ public class SwaggerDocumentationConfig {
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Order Management API")
-                .description("A Order Management API microservice implemented in Spring Boot")
+                .title("CQRS Cafe Shop")
+                .description("Sample CQRS Microservice implemented in Java and Spring Boot")
                 .version("1.0.0")
                 .build();
     }
