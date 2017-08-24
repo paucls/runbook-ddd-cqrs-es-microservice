@@ -1,4 +1,4 @@
-package io.cqrs.cafe.domain.model;
+package io.cqrs.taskmanagement.domain.model;
 
 public interface DomainEventPublisher {
     void publish(DomainEvent event);
