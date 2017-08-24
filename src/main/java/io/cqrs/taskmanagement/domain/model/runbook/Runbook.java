@@ -22,9 +22,10 @@ class Runbook implements Aggregate {
         eventPublisher.publish(new RunbookCreated(runbookId, name));
     }
 
-    public HashMap<String, Task> tasks() {
+    HashMap<String, Task> tasks() {
         return this.tasks;
     }
+
 
     //
     // Handle
@@ -36,20 +37,45 @@ class Runbook implements Aggregate {
         apply(taskAdded);
     }
 
-    public void handle(StartTask c) {
-        Task task = tasks.get(c.getTaskId());
-        if (!task.getUserId().equals(c.getUserId())) {
+    void handle(StartTask c) {
+        verifyAssignee(c.getTaskId(), c.getUserId());
+
+        TaskMarkedInProgress taskMarkedInProgress = new TaskMarkedInProgress(c.getTaskId());
+        eventPublisher.publish(taskMarkedInProgress);
+        apply(taskMarkedInProgress);
+    }
+
+    void handle(CompleteTask c) {
+        verifyAssignee(c.getTaskId(), c.getUserId());
+        verifyInProgress(c.getTaskId());
+
+        eventPublisher.publish(new TaskCompleted(c.getTaskId(), c.getUserId()));
+    }
+
+    private void verifyAssignee(String taskId, String userId) {
+        Task task = tasks.get(taskId);
+        if (!task.getUserId().equals(userId)) {
             throw new TaskAssignedToDifferentUserException();
         }
-        eventPublisher.publish(new TaskMarkedInProgress(c.getTaskId()));
     }
+
+    private void verifyInProgress(String taskId) {
+        if (!tasks.get(taskId).isInProgress()) { // TODO should not this go down to the Task aggregate?
+            throw new CanOnlyCompleteInProgressTaskException();
+        }
+    }
+
 
     //
     // Apply
     //
 
-    public void apply(TaskAdded e) {
+    void apply(TaskAdded e) {
         tasks.put(e.getTaskId(), new Task(e.getTaskId(), e.getUserId()));
     }
 
+    void apply(TaskMarkedInProgress e) {
+        // TODO Which aggregate should be responsible to apply the task status change?
+        tasks.get(e.getTaskId()).apply(e);
+    }
 }

@@ -63,4 +63,41 @@ public class RunbookTest {
         // When
         runbook.handle(new StartTask("task-id", "user-id-2"));
     }
+
+    @Test
+    public void can_complete_task() {
+        // Given
+        runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
+        runbook.apply(new TaskMarkedInProgress("task-id"));
+
+        // When
+        runbook.handle(new CompleteTask("task-id", "user-id"));
+
+        // Then
+        verify(eventPublisherMock).publish(new TaskCompleted("task-id", "user-id"));
+    }
+
+    @Test
+    public void cannot_complete_task_assigned_to_different_user() {
+        // Given
+        runbook.apply(new TaskAdded("task-id", "name", "description", "user-id-1"));
+        runbook.apply(new TaskMarkedInProgress("task-id"));
+
+        exception.expect(TaskAssignedToDifferentUserException.class);
+
+        // When
+        runbook.handle(new CompleteTask("task-id", "user-id-2"));
+    }
+
+
+    @Test
+    public void cannot_complete_task_that_is_not_started() {
+        // Given
+        runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
+
+        exception.expect(CanOnlyCompleteInProgressTaskException.class);
+
+        // When
+        runbook.handle(new CompleteTask("task-id", "user-id"));
+    }
 }
