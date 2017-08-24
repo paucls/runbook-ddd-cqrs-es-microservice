@@ -1,6 +1,8 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-public class AddTask {
+import io.cqrs.taskmanagement.domain.model.Command;
+
+public class AddTask implements Command {
     private final String taskId;
     private final String name;
     private final String description;
