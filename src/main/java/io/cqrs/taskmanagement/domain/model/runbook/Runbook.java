@@ -31,20 +31,20 @@ public class Runbook implements Aggregate {
         this.eventPublisher = eventPublisher;
     }
 
-    HashMap<String, Task> tasks() {
+    HashMap<String, Task> getTasks() {
         return this.tasks;
     }
 
     // We won't need accessors if we do not use this Entity as a read model
-    public String projectId() {
+    public String getProjectId() {
         return this.projectId;
     }
 
-    public String runbookId() {
+    public String getRunbookId() {
         return this.runbookId;
     }
 
-    public String name() {
+    public String getName() {
         return this.name;
     }
 
@@ -52,7 +52,7 @@ public class Runbook implements Aggregate {
         return this.isCompleted;
     }
 
-    public String ownerId() {
+    public String getOwnerId() {
         return ownerId;
     }
 

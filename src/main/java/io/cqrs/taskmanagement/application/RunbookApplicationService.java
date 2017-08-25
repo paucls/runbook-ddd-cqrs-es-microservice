@@ -31,10 +31,10 @@ public class RunbookApplicationService {
 
         // Marshall it back to a DTO
         RunbookDto runbookDto = new RunbookDto();
-        runbookDto.setProjectId(runbook.projectId()); // TODO use a marshaller for this
-        runbookDto.setRunbookId(runbook.runbookId());
-        runbookDto.setName(runbook.name());
-        runbookDto.setOwnerId(runbook.ownerId());
+        runbookDto.setProjectId(runbook.getProjectId()); // TODO use a marshaller for this
+        runbookDto.setRunbookId(runbook.getRunbookId());
+        runbookDto.setName(runbook.getName());
+        runbookDto.setOwnerId(runbook.getOwnerId());
         runbookDto.setCompleted(runbook.isCompleted());
 
         return runbookDto;
