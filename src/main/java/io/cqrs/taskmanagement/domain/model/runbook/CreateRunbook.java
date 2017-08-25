@@ -1,10 +1,9 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import lombok.Value;
 
 @Value
-public class RunbookCreated implements DomainEvent {
+public class CreateRunbook {
     String projectId;
     String runbookId;
     String name;

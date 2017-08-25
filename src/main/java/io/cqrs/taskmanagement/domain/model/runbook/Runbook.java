@@ -7,29 +7,50 @@ import java.util.HashMap;
 
 class Runbook implements Aggregate {
 
-    private final String projectId;
-    private final String runbookId;
-    private final String name;
-    private final DomainEventPublisher eventPublisher;
+    private String projectId;
+    private String runbookId;
+    private String name;
+    private String ownerId;
+    private DomainEventPublisher eventPublisher;
     private HashMap<String, Task> tasks = new HashMap<>();
 
-    Runbook(String projectId, String runbookId, String name, DomainEventPublisher eventPublisher) {
-        this.projectId = projectId;
-        this.runbookId = runbookId;
-        this.name = name;
+    // constructor needed for reconstruction
+    Runbook(DomainEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-
-        eventPublisher.publish(new RunbookCreated(runbookId, name));
     }
 
     HashMap<String, Task> tasks() {
         return this.tasks;
     }
 
+    // We won't need accessors if we do not use this Entity as a read model
+    String projectId() {
+        return this.projectId;
+    }
+
+    String runbookId() {
+        return this.runbookId;
+    }
+
+    String name() {
+        return this.name;
+    }
+
+    public Object ownerId() {
+        return ownerId;
+    }
 
     //
     // Handle
     //
+
+    public Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+
+        RunbookCreated runbookCreated = new RunbookCreated(c.getProjectId(), c.getRunbookId(), c.getName(), c.getOwnerId());
+        eventPublisher.publish(runbookCreated);
+        apply(runbookCreated);
+    }
 
     void handle(AddTask c) {
         TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), "description", "user-id");
@@ -52,6 +73,12 @@ class Runbook implements Aggregate {
         eventPublisher.publish(new TaskCompleted(c.getTaskId(), c.getUserId()));
     }
 
+    public void handle(CloseRunbook c) {
+        if (this.ownerId.equals(c.getUserId())) throw new RunbookOwnedByDifferentUserException();
+
+
+    }
+
     private void verifyAssignee(String taskId, String userId) {
         Task task = tasks.get(taskId);
         if (!task.getUserId().equals(userId)) {
@@ -65,10 +92,16 @@ class Runbook implements Aggregate {
         }
     }
 
-
     //
     // Apply
     //
+
+    void apply(RunbookCreated c) {
+        this.projectId = c.getProjectId();
+        this.runbookId = c.getRunbookId();
+        this.name = c.getName();
+        this.ownerId = c.getOwnerId();
+    }
 
     void apply(TaskAdded e) {
         tasks.put(e.getTaskId(), new Task(e.getTaskId(), e.getUserId()));

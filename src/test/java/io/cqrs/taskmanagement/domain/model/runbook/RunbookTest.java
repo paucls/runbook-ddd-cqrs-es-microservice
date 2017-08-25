@@ -22,17 +22,28 @@ public class RunbookTest {
     @Before
     public void setup() {
         eventPublisherMock = Mockito.mock(DomainEventPublisher.class);
-        runbook = new Runbook("project-id", "runbook-id", "runbook-name", eventPublisherMock);
+        runbook = new Runbook(eventPublisherMock);
     }
 
     @Test
     public void can_create_runbook() {
+        // When
+        Runbook newRunbook = new Runbook(new CreateRunbook("project-id", "runbook-id", "runbook-name", "owner-id"), eventPublisherMock);
+
         // Then
-        verify(eventPublisherMock).publish(new RunbookCreated("runbook-id", "runbook-name"));
+        verify(eventPublisherMock).publish(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
+
+        // Assert aggregate state is initialized properly
+        assertThat(newRunbook.projectId(), is("project-id")); // TODO do we really need to be explicit assertint this here?
+        assertThat(newRunbook.runbookId(), is("runbook-id"));
+        assertThat(newRunbook.name(), is("runbook-name"));
+        assertThat(newRunbook.ownerId(), is("owner-id"));
     }
 
     @Test
     public void can_add_task() {
+        // Given
+
         // When
         runbook.handle(new AddTask("task-id", "name", "description", "user-id"));
 
@@ -89,7 +100,6 @@ public class RunbookTest {
         runbook.handle(new CompleteTask("task-id", "user-id-2"));
     }
 
-
     @Test
     public void cannot_complete_task_that_is_not_started() {
         // Given
@@ -100,4 +110,18 @@ public class RunbookTest {
         // When
         runbook.handle(new CompleteTask("task-id", "user-id"));
     }
+
+    @Test
+    public void cannot_close_runbook_if_not_the_owner() {
+        // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
+
+        exception.expect(RunbookOwnedByDifferentUserException.class);
+
+        // When
+        runbook.handle(new CloseRunbook("runbook-id", "user-id"));
+    }
+
+    // TODO can complete runbook
+    // TODO can not complete runbook with pending tasks
 }
