@@ -11,8 +11,8 @@ class Runbook implements Aggregate {
     private String runbookId;
     private String name;
     private String ownerId;
-    private boolean isCompleted = false;
-    private HashMap<String, Task> tasks = new HashMap<>();
+    private boolean isCompleted;
+    private HashMap<String, Task> tasks;
     private DomainEventPublisher eventPublisher;
 
     // constructor needed for reconstruction
@@ -41,7 +41,7 @@ class Runbook implements Aggregate {
         return this.isCompleted;
     }
 
-    public Object ownerId() {
+    String ownerId() {
         return ownerId;
     }
 
@@ -49,7 +49,8 @@ class Runbook implements Aggregate {
     // Handle
     //
 
-    public Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
+    // Note this constructor is also a command handler
+    Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
 
         RunbookCreated runbookCreated = new RunbookCreated(c.getProjectId(), c.getRunbookId(), c.getName(), c.getOwnerId());
@@ -75,16 +76,29 @@ class Runbook implements Aggregate {
         verifyAssignee(c.getTaskId(), c.getUserId());
         verifyInProgress(c.getTaskId());
 
-        eventPublisher.publish(new TaskCompleted(c.getTaskId(), c.getUserId()));
+        TaskCompleted taskCompleted = new TaskCompleted(c.getTaskId(), c.getUserId());
+        eventPublisher.publish(taskCompleted);
+        apply(taskCompleted);
     }
 
     void handle(CompleteRunbook c) {
-        if (!this.ownerId.equals(c.getUserId())) throw new RunbookOwnedByDifferentUserException();
+        verifyIsOwner(c.getUserId());
+        verifyAllTasksCompleted();
 
         RunbookCompleted runbookCompleted = new RunbookCompleted(c.getRunbookId());
         eventPublisher.publish(runbookCompleted);
         apply(runbookCompleted);
+    }
 
+    private void verifyIsOwner(String userId) {
+        if (!this.ownerId.equals(userId)) throw new RunbookOwnedByDifferentUserException();
+    }
+
+    private void verifyAllTasksCompleted() {
+        boolean hasPendingTasks = tasks.entrySet()
+                .stream()
+                .anyMatch(entry -> !entry.getValue().isClosed());
+        if (hasPendingTasks) throw new RunBookWithPendingTasksException();
     }
 
     private void verifyAssignee(String taskId, String userId) {
@@ -109,6 +123,8 @@ class Runbook implements Aggregate {
         this.runbookId = c.getRunbookId();
         this.name = c.getName();
         this.ownerId = c.getOwnerId();
+        this.isCompleted = false;
+        this.tasks = new HashMap<>();
     }
 
     void apply(TaskAdded e) {
@@ -120,7 +136,11 @@ class Runbook implements Aggregate {
         tasks.get(e.getTaskId()).apply(e);
     }
 
-    private void apply(RunbookCompleted e) {
+    void apply(RunbookCompleted e) {
         this.isCompleted = true;
+    }
+
+    void apply(TaskCompleted e) {
+        tasks.get(e.getTaskId()).apply(e);
     }
 }

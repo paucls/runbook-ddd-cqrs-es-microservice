@@ -5,7 +5,7 @@ import io.cqrs.taskmanagement.domain.model.Aggregate;
 public class Task implements Aggregate {
     public static final String OPENED = "OPEN";
     public static final String IN_PROGRESS = "IN_PROGRESS";
-    public static final String CLOSED = "CLOSED";
+    public static final String COMPLETED = "COMPLETED";
 
     private final String taskId;
     private String userId;
@@ -29,6 +29,10 @@ public class Task implements Aggregate {
         return this.status.equals(IN_PROGRESS);
     }
 
+    public boolean isClosed() {
+        return this.status.equals(COMPLETED);
+    }
+
     //
     // Apply
     //
@@ -36,5 +40,9 @@ public class Task implements Aggregate {
     void apply(TaskMarkedInProgress e) {
         // TODO Which aggregate should be responsible to apply the task status change?
         this.status = IN_PROGRESS;
+    }
+
+    public void apply(TaskCompleted e) {
+        this.status = COMPLETED;
     }
 }

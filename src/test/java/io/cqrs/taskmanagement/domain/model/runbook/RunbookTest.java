@@ -44,6 +44,7 @@ public class RunbookTest {
     @Test
     public void can_add_task() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
 
         // When
         runbook.handle(new AddTask("task-id", "name", "description", "user-id"));
@@ -56,6 +57,7 @@ public class RunbookTest {
     @Test
     public void can_start_task() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
         runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
 
         // When
@@ -68,6 +70,7 @@ public class RunbookTest {
     @Test
     public void cannot_start_task_assigned_to_different_user() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
         runbook.apply(new TaskAdded("task-id", "name", "description", "user-id-1"));
 
         exception.expect(TaskAssignedToDifferentUserException.class);
@@ -79,6 +82,7 @@ public class RunbookTest {
     @Test
     public void can_complete_task() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
         runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
         runbook.apply(new TaskMarkedInProgress("task-id"));
 
@@ -92,6 +96,7 @@ public class RunbookTest {
     @Test
     public void cannot_complete_task_assigned_to_different_user() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
         runbook.apply(new TaskAdded("task-id", "name", "description", "user-id-1"));
         runbook.apply(new TaskMarkedInProgress("task-id"));
 
@@ -104,6 +109,7 @@ public class RunbookTest {
     @Test
     public void cannot_complete_task_that_is_not_started() {
         // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "runbook-name", "owner-id"));
         runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
 
         exception.expect(CanOnlyCompleteInProgressTaskException.class);
@@ -136,5 +142,32 @@ public class RunbookTest {
         assertThat(runbook.isCompleted(), is(true));
     }
 
-    // TODO can not complete runbook with pending tasks
+    @Test
+    public void can_not_complete_runbook_with_pending_tasks() {
+        // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
+        runbook.apply(new TaskAdded("task-id-1", "name", "description", "user-id"));
+        runbook.apply(new TaskAdded("task-id-2", "name", "description", "user-id"));
+        runbook.apply(new TaskCompleted("task-id-1", "user-id"));
+
+        exception.expect(RunBookWithPendingTasksException.class);
+
+        // When
+        runbook.handle(new CompleteRunbook("runbook-id", "user-id"));
+    }
+
+    @Test
+    public void can_complete_runbook_with_all_tasks_completed() {
+        // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
+        runbook.apply(new TaskAdded("task-id", "name", "description", "user-id"));
+        runbook.apply(new TaskCompleted("task-id", "user-id"));
+
+        // When
+        runbook.handle(new CompleteRunbook("runbook-id", "user-id"));
+
+        // Then
+        verify(eventPublisherMock).publish(new RunbookCompleted("runbook-id"));
+        assertThat(runbook.isCompleted(), is(true));
+    }
 }
