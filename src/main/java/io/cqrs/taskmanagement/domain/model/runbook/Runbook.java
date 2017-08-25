@@ -11,8 +11,9 @@ class Runbook implements Aggregate {
     private String runbookId;
     private String name;
     private String ownerId;
-    private DomainEventPublisher eventPublisher;
+    private boolean isCompleted = false;
     private HashMap<String, Task> tasks = new HashMap<>();
+    private DomainEventPublisher eventPublisher;
 
     // constructor needed for reconstruction
     Runbook(DomainEventPublisher eventPublisher) {
@@ -34,6 +35,10 @@ class Runbook implements Aggregate {
 
     String name() {
         return this.name;
+    }
+
+    boolean isCompleted() {
+        return this.isCompleted;
     }
 
     public Object ownerId() {
@@ -73,9 +78,12 @@ class Runbook implements Aggregate {
         eventPublisher.publish(new TaskCompleted(c.getTaskId(), c.getUserId()));
     }
 
-    public void handle(CloseRunbook c) {
-        if (this.ownerId.equals(c.getUserId())) throw new RunbookOwnedByDifferentUserException();
+    void handle(CloseRunbook c) {
+        if (!this.ownerId.equals(c.getUserId())) throw new RunbookOwnedByDifferentUserException();
 
+        RunbookCompleted runbookCompleted = new RunbookCompleted(c.getRunbookId());
+        eventPublisher.publish(runbookCompleted);
+        apply(runbookCompleted);
 
     }
 
@@ -110,5 +118,9 @@ class Runbook implements Aggregate {
     void apply(TaskMarkedInProgress e) {
         // TODO Which aggregate should be responsible to apply the task status change?
         tasks.get(e.getTaskId()).apply(e);
+    }
+
+    private void apply(RunbookCompleted e) {
+        this.isCompleted = true;
     }
 }

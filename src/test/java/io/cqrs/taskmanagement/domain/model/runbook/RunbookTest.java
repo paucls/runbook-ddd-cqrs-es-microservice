@@ -38,6 +38,7 @@ public class RunbookTest {
         assertThat(newRunbook.runbookId(), is("runbook-id"));
         assertThat(newRunbook.name(), is("runbook-name"));
         assertThat(newRunbook.ownerId(), is("owner-id"));
+        assertThat(newRunbook.isCompleted(), is(false));
     }
 
     @Test
@@ -112,16 +113,28 @@ public class RunbookTest {
     }
 
     @Test
-    public void cannot_close_runbook_if_not_the_owner() {
+    public void cannot_complete_runbook_if_not_the_owner() {
         // Given
-        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id-1"));
 
         exception.expect(RunbookOwnedByDifferentUserException.class);
 
         // When
-        runbook.handle(new CloseRunbook("runbook-id", "user-id"));
+        runbook.handle(new CloseRunbook("runbook-id", "user-id-2"));
     }
 
-    // TODO can complete runbook
+    @Test
+    public void can_complete_runbook() {
+        // Given
+        runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
+
+        // When
+        runbook.handle(new CloseRunbook("runbook-id", "user-id"));
+
+        // Then
+        verify(eventPublisherMock).publish(new RunbookCompleted("runbook-id"));
+        assertThat(runbook.isCompleted(), is(true));
+    }
+
     // TODO can not complete runbook with pending tasks
 }
