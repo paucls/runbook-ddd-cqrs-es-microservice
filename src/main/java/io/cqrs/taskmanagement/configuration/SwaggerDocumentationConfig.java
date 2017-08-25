@@ -25,7 +25,7 @@ public class SwaggerDocumentationConfig {
     public Docket customImplementation(){
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                    .apis(RequestHandlerSelectors.basePackage("io.cqrs.port.adapter.restapi"))
+                    .apis(RequestHandlerSelectors.basePackage("io.cqrs.taskmanagement.port.adapter.restapi"))
                     .build()
                 .directModelSubstitute(org.joda.time.LocalDate.class, java.sql.Date.class)
                 .directModelSubstitute(org.joda.time.DateTime.class, java.util.Date.class)

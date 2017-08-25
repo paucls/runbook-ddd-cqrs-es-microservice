@@ -2,18 +2,30 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
+import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.HashMap;
 
-class Runbook implements Aggregate {
+//@Entity
+public class Runbook implements Aggregate {
 
-    private String projectId;
+//    @Id
+//    @GeneratedValue(generator = "system-uuid")
+//    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     private String runbookId;
+    private String projectId;
     private String name;
     private String ownerId;
     private boolean isCompleted;
     private HashMap<String, Task> tasks;
     private DomainEventPublisher eventPublisher;
+
+    // empty constructor for rest api TODO: probably we need a DTO there
+    Runbook() {
+    }
 
     // constructor needed for reconstruction
     Runbook(DomainEventPublisher eventPublisher) {
@@ -25,7 +37,7 @@ class Runbook implements Aggregate {
     }
 
     // We won't need accessors if we do not use this Entity as a read model
-    String projectId() {
+    public String projectId() {
         return this.projectId;
     }
 
