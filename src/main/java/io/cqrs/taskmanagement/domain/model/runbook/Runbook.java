@@ -41,19 +41,19 @@ public class Runbook implements Aggregate {
         return this.projectId;
     }
 
-    String runbookId() {
+    public String runbookId() {
         return this.runbookId;
     }
 
-    String name() {
+    public String name() {
         return this.name;
     }
 
-    boolean isCompleted() {
+    public boolean isCompleted() {
         return this.isCompleted;
     }
 
-    String ownerId() {
+    public String ownerId() {
         return ownerId;
     }
 
@@ -62,7 +62,7 @@ public class Runbook implements Aggregate {
     //
 
     // Note this constructor is also a command handler
-    Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
+    public Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
 
         RunbookCreated runbookCreated = new RunbookCreated(c.getProjectId(), c.getRunbookId(), c.getName(), c.getOwnerId());
