@@ -78,7 +78,7 @@ class Runbook implements Aggregate {
         eventPublisher.publish(new TaskCompleted(c.getTaskId(), c.getUserId()));
     }
 
-    void handle(CloseRunbook c) {
+    void handle(CompleteRunbook c) {
         if (!this.ownerId.equals(c.getUserId())) throw new RunbookOwnedByDifferentUserException();
 
         RunbookCompleted runbookCompleted = new RunbookCompleted(c.getRunbookId());

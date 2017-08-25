@@ -120,7 +120,7 @@ public class RunbookTest {
         exception.expect(RunbookOwnedByDifferentUserException.class);
 
         // When
-        runbook.handle(new CloseRunbook("runbook-id", "user-id-2"));
+        runbook.handle(new CompleteRunbook("runbook-id", "user-id-2"));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class RunbookTest {
         runbook.apply(new RunbookCreated("project-id", "runbook-id", "name", "user-id"));
 
         // When
-        runbook.handle(new CloseRunbook("runbook-id", "user-id"));
+        runbook.handle(new CompleteRunbook("runbook-id", "user-id"));
 
         // Then
         verify(eventPublisherMock).publish(new RunbookCompleted("runbook-id"));
