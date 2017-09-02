@@ -56,7 +56,7 @@ public class RunbookTest {
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
 
         // When
-        runbook.handle(new AddTask(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.handle(new AddTask(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // Then
         verify(eventPublisherMock).publish(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
@@ -70,7 +70,7 @@ public class RunbookTest {
         runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // When
-        runbook.handle(new StartTask(TASK_ID, USER_ID));
+        runbook.handle(new StartTask(RUNBOOK_ID, TASK_ID, USER_ID));
 
         // Then
         verify(eventPublisherMock).publish(new TaskMarkedInProgress(TASK_ID));
@@ -85,7 +85,7 @@ public class RunbookTest {
         exception.expect(TaskAssignedToDifferentUserException.class);
 
         // When
-        runbook.handle(new StartTask(TASK_ID, "user-id-2"));
+        runbook.handle(new StartTask(RUNBOOK_ID, TASK_ID, "user-id-2"));
     }
 
     @Test

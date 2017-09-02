@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class AddTask implements Command {
+    String runbookId;
     String taskId;
     String name;
     String description;
