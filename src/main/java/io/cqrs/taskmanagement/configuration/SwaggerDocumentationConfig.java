@@ -15,18 +15,18 @@ public class SwaggerDocumentationConfig {
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-            .title("Runbook API")
-            .description("A sample microservice implemented with a CQRS architecture")
-            .version("1.0.0")
-            .build();
+                .title("Runbook API")
+                .description("A sample microservice implemented with a CQRS architecture")
+                .version("1.0.0")
+                .build();
     }
 
     @Bean
-    public Docket customImplementation(){
+    public Docket customImplementation() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                    .apis(RequestHandlerSelectors.basePackage("io.cqrs.taskmanagement.port.adapter.restapi"))
-                    .build()
+                .apis(RequestHandlerSelectors.basePackage("io.cqrs.taskmanagement.port.adapter.restapi"))
+                .build()
                 .directModelSubstitute(org.joda.time.LocalDate.class, java.sql.Date.class)
                 .directModelSubstitute(org.joda.time.DateTime.class, java.util.Date.class)
                 .apiInfo(apiInfo());
