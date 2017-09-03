@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class CompleteTask implements Command {
+    String runbookId;
     String taskId;
     String userId;
 }

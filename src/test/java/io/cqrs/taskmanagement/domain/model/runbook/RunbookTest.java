@@ -96,7 +96,7 @@ public class RunbookTest {
         runbook.apply(new TaskMarkedInProgress(TASK_ID));
 
         // When
-        runbook.handle(new CompleteTask(TASK_ID, USER_ID));
+        runbook.handle(new CompleteTask(RUNBOOK_ID, TASK_ID, USER_ID));
 
         // Then
         verify(eventPublisherMock).publish(new TaskCompleted(TASK_ID, USER_ID));
@@ -112,7 +112,7 @@ public class RunbookTest {
         exception.expect(TaskAssignedToDifferentUserException.class);
 
         // When
-        runbook.handle(new CompleteTask(TASK_ID, "user-id-2"));
+        runbook.handle(new CompleteTask(RUNBOOK_ID, TASK_ID, "user-id-2"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class RunbookTest {
         exception.expect(CanOnlyCompleteInProgressTaskException.class);
 
         // When
-        runbook.handle(new CompleteTask(TASK_ID, USER_ID));
+        runbook.handle(new CompleteTask(RUNBOOK_ID, TASK_ID, USER_ID));
     }
 
     @Test
