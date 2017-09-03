@@ -69,13 +69,13 @@ public class Runbook implements Aggregate {
         apply(runbookCreated);
     }
 
-    void handle(AddTask c) {
+    public void handle(AddTask c) {
         TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), "description", "user-id");
         eventPublisher.publish(taskAdded);
         apply(taskAdded);
     }
 
-    void handle(StartTask c) {
+    public void handle(StartTask c) {
         verifyAssignee(c.getTaskId(), c.getUserId());
 
         TaskMarkedInProgress taskMarkedInProgress = new TaskMarkedInProgress(c.getTaskId());
@@ -83,7 +83,7 @@ public class Runbook implements Aggregate {
         apply(taskMarkedInProgress);
     }
 
-    void handle(CompleteTask c) {
+    public void handle(CompleteTask c) {
         verifyAssignee(c.getTaskId(), c.getUserId());
         verifyInProgress(c.getTaskId());
 
@@ -92,7 +92,7 @@ public class Runbook implements Aggregate {
         apply(taskCompleted);
     }
 
-    void handle(CompleteRunbook c) {
+    public void handle(CompleteRunbook c) {
         verifyIsOwner(c.getUserId());
         verifyAllTasksCompleted();
 
