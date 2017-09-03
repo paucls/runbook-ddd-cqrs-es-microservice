@@ -56,9 +56,7 @@ public class RunbooksApiController implements RunbooksApi {
                 SAMPLE_USER_ID
         ));
 
-        Runbook createdRunbook = runbookRepository.getOne(runbookId);
-
-        return new ResponseEntity<>(createdRunbook, HttpStatus.OK);
+        return new ResponseEntity<>(runbookRepository.getOne(runbookId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Complete Runbook", response = Runbook.class, tags = {})
@@ -69,9 +67,7 @@ public class RunbooksApiController implements RunbooksApi {
                 runbookId,
                 SAMPLE_USER_ID));
 
-        Runbook updatedRunbook = runbookRepository.getOne(runbookId);
-
-        return new ResponseEntity<>(updatedRunbook, HttpStatus.OK);
+        return new ResponseEntity<>(runbookRepository.getOne(runbookId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
@@ -87,9 +83,7 @@ public class RunbooksApiController implements RunbooksApi {
                 c.getDescription(),
                 SAMPLE_USER_ID));
 
-        Task createdTask = taskRepository.getOne(taskId);
-
-        return new ResponseEntity<>(createdTask, HttpStatus.OK);
+        return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Start Task", response = Task.class, tags = {})
@@ -101,9 +95,7 @@ public class RunbooksApiController implements RunbooksApi {
                 taskId,
                 SAMPLE_USER_ID));
 
-        Task updatedTask = taskRepository.getOne(taskId);
-
-        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+        return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Complete Task", response = Task.class, tags = {})
@@ -115,9 +107,7 @@ public class RunbooksApiController implements RunbooksApi {
                 taskId,
                 SAMPLE_USER_ID));
 
-        Task updatedTask = taskRepository.getOne(taskId);
-
-        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+        return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
     }
 
     /**
@@ -135,6 +125,6 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
     public ResponseEntity<List<Task>> getTasksForRunbook(@RequestParam String runbookId) {
-        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK); //TODO: this should be find tasks for a single runbook    
     }
 }
