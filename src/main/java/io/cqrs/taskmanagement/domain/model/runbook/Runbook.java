@@ -1,5 +1,6 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
+import io.cqrs.taskmanagement.application.EventPublisherStub;
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 
@@ -7,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 public class Runbook implements Aggregate {
@@ -17,13 +19,16 @@ public class Runbook implements Aggregate {
     private String name;
     private String ownerId;
     private boolean isCompleted;
-    private HashMap<String, Task> tasks;
+    private Map<String, Task> tasks;
 
     @Transient
     private DomainEventPublisher eventPublisher;
 
     // empty constructor for rest api TODO: probably we need a DTO there
     Runbook() {
+        this.eventPublisher = new EventPublisherStub(); // JPA is using this constructor.
+        // As a quick hack, instantiating directly the event publisher here.
+        // TODO: Redesign AR to not use a event publisher and instead use a collection of Unpublished events.
     }
 
     // constructor needed for reconstruction
@@ -31,7 +36,7 @@ public class Runbook implements Aggregate {
         this.eventPublisher = eventPublisher;
     }
 
-    HashMap<String, Task> getTasks() {
+    Map<String, Task> getTasks() {
         return this.tasks;
     }
 
