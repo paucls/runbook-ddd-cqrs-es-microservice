@@ -4,8 +4,11 @@ import io.cqrs.taskmanagement.application.EventPublisherStub;
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +18,15 @@ public class Runbook implements Aggregate {
 
     @Id
     private String runbookId;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "runbook_id")
+    private Map<String, Task> tasks;
+
     private String projectId;
     private String name;
     private String ownerId;
     private boolean isCompleted;
-    private Map<String, Task> tasks;
 
     @Transient
     private DomainEventPublisher eventPublisher;

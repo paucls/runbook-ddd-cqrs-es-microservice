@@ -7,14 +7,18 @@ import javax.persistence.Id;
 
 @Entity
 public class Task implements Aggregate {
-    public static final String OPENED = "OPEN";
-    public static final String IN_PROGRESS = "IN_PROGRESS";
-    public static final String COMPLETED = "COMPLETED";
+    private static final String OPENED = "OPEN";
+    private static final String IN_PROGRESS = "IN_PROGRESS";
+    private static final String COMPLETED = "COMPLETED";
 
     @Id
-    private final String taskId;
+    private String taskId;
     private String userId;
     private String status;
+
+    // constructor needed for JPA persistence
+    public Task() {
+    }
 
     public Task(String taskId, String userId) {
         this.taskId = taskId;
@@ -28,6 +32,10 @@ public class Task implements Aggregate {
 
     public String getUserId() {
         return userId;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public boolean isInProgress() {

@@ -6,6 +6,7 @@ import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Task;
 import io.cqrs.taskmanagement.port.adapter.persistence.repository.RunbookRepository;
+import io.cqrs.taskmanagement.port.adapter.persistence.repository.TaskRepository;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,6 +30,9 @@ public class RunbooksApiController implements RunbooksApi {
 
     @Autowired
     private RunbookRepository runbookRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     /**
      * Commands
@@ -65,9 +69,9 @@ public class RunbooksApiController implements RunbooksApi {
                 c.getDescription(),
                 "user-id"));
 
-        Task createdTask = null; //TODO
+        Task createdTask = taskRepository.getOne(taskId);
 
-        return new ResponseEntity<Task>(createdTask, HttpStatus.OK);
+        return new ResponseEntity<>(createdTask, HttpStatus.OK);
     }
 
     /**
@@ -79,5 +83,12 @@ public class RunbooksApiController implements RunbooksApi {
     @RequestMapping(value = "/runbooks", method = RequestMethod.GET)
     public ResponseEntity<List<Runbook>> getAllRunbooks() {
         return new ResponseEntity<>(runbookRepository.findAll(), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "Gets the list of Tasks for a Runbook. ", response = Task.class, responseContainer = "List", tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = Task.class)})
+    @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
+    public ResponseEntity<List<Task>> getTasksForRunbook(@RequestParam String runbookId) {
+        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK);
     }
 }
