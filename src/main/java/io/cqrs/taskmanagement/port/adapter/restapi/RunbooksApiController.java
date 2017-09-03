@@ -2,8 +2,11 @@ package io.cqrs.taskmanagement.port.adapter.restapi;
 
 import io.cqrs.taskmanagement.application.RunbookApplicationService;
 import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
+import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
+import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
+import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
 import io.cqrs.taskmanagement.domain.model.runbook.Task;
 import io.cqrs.taskmanagement.port.adapter.persistence.repository.RunbookRepository;
 import io.cqrs.taskmanagement.port.adapter.persistence.repository.TaskRepository;
@@ -24,6 +27,8 @@ import java.util.UUID;
 
 @Controller
 public class RunbooksApiController implements RunbooksApi {
+
+    private static final String SAMPLE_USER_ID = "user-id";
 
     @Autowired
     private RunbookApplicationService runbookApplicationService;
@@ -48,7 +53,7 @@ public class RunbooksApiController implements RunbooksApi {
                 runbookDto.getProjectId(),
                 runbookId,
                 runbookDto.getName(),
-                "user-id"
+                SAMPLE_USER_ID
         ));
 
         Runbook createdRunbook = runbookRepository.getOne(runbookId);
@@ -56,9 +61,22 @@ public class RunbooksApiController implements RunbooksApi {
         return new ResponseEntity<>(createdRunbook, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "", notes = "Complete Runbook", response = Runbook.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook completed successfully", response = Runbook.class)})
+    @RequestMapping(value = "/runbooks/{runbookId}/actions/complete", method = RequestMethod.POST)
+    public ResponseEntity<Runbook> completeRunbook(@RequestParam String runbookId) {
+        runbookApplicationService.completeRunbook(new CompleteRunbook(
+                runbookId,
+                SAMPLE_USER_ID));
+
+        Runbook updatedRunbook = runbookRepository.getOne(runbookId);
+
+        return new ResponseEntity<>(updatedRunbook, HttpStatus.OK);
+    }
+
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = Task.class)})
-    @RequestMapping(value = "/runbooks/{runbook-id}/actions/addtask", method = RequestMethod.POST)
+    @RequestMapping(value = "/runbooks/{runbookId}/actions/add-task", method = RequestMethod.POST)
     public ResponseEntity<Task> addTask(@RequestParam String runbookId, @RequestBody AddTask c) {
         String taskId = UUID.randomUUID().toString();
 
@@ -67,11 +85,39 @@ public class RunbooksApiController implements RunbooksApi {
                 taskId,
                 c.getName(),
                 c.getDescription(),
-                "user-id"));
+                SAMPLE_USER_ID));
 
         Task createdTask = taskRepository.getOne(taskId);
 
         return new ResponseEntity<>(createdTask, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "Start Task", response = Task.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Task started successfully", response = Task.class)})
+    @RequestMapping(value = "/runbooks/{runbookId}/tasks/{taskId}/actions/start", method = RequestMethod.POST)
+    public ResponseEntity<Task> startTask(@RequestParam String runbookId, @RequestParam String taskId) {
+        runbookApplicationService.startTask(new StartTask(
+                runbookId,
+                taskId,
+                SAMPLE_USER_ID));
+
+        Task updatedTask = taskRepository.getOne(taskId);
+
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "", notes = "Complete Task", response = Task.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Task completed successfully", response = Task.class)})
+    @RequestMapping(value = "/runbooks/{runbookId}/tasks/{taskId}/actions/complete", method = RequestMethod.POST)
+    public ResponseEntity<Task> completeTask(@RequestParam String runbookId, @RequestParam String taskId) {
+        runbookApplicationService.completeTask(new CompleteTask(
+                runbookId,
+                taskId,
+                SAMPLE_USER_ID));
+
+        Task updatedTask = taskRepository.getOne(taskId);
+
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
     /**
