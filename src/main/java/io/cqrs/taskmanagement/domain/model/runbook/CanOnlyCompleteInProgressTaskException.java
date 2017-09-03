@@ -1,4 +1,6 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-public class CanOnlyCompleteInProgressTaskException extends RuntimeException{
+import io.cqrs.taskmanagement.domain.model.DomainException;
+
+public class CanOnlyCompleteInProgressTaskException extends DomainException {
 }

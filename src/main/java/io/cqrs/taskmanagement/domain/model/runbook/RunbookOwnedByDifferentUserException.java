@@ -1,4 +1,6 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-public class RunbookOwnedByDifferentUserException extends RuntimeException{
+import io.cqrs.taskmanagement.domain.model.DomainException;
+
+public class RunbookOwnedByDifferentUserException extends DomainException {
 }
