@@ -2,11 +2,16 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Task implements Aggregate {
     public static final String OPENED = "OPEN";
     public static final String IN_PROGRESS = "IN_PROGRESS";
     public static final String COMPLETED = "COMPLETED";
 
+    @Id
     private final String taskId;
     private String userId;
     private String status;

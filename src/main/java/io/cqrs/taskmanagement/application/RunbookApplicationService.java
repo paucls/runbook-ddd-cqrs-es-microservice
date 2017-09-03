@@ -1,14 +1,12 @@
 package io.cqrs.taskmanagement.application;
 
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
+import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.port.adapter.persistence.repository.RunbookRepository;
-import io.cqrs.taskmanagement.port.adapter.restapi.RunbookDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class RunbookApplicationService {
@@ -17,26 +15,24 @@ public class RunbookApplicationService {
     private DomainEventPublisher eventPublisher;
 
     @Autowired
-    private RunbookRepository runbookRepository; //TODO use a interface instead of impl class
+    private RunbookRepository runbookRepository;
 
-    public RunbookDto createRunbook(String projectId, String name, String userId) {
-        String newId = UUID.randomUUID().toString();
-        CreateRunbook createRunbook = new CreateRunbook(projectId, newId, name, userId);
-
+    public void createRunbook(CreateRunbook createRunbook) {
         // Dispatch Create Runbook
         Runbook runbook = new Runbook(createRunbook, eventPublisher);
 
         // Persist
         runbookRepository.save(runbook);
+    }
 
-        // Marshall it back to a DTO
-        RunbookDto runbookDto = new RunbookDto();
-        runbookDto.setProjectId(runbook.getProjectId()); // TODO use a marshaller for this
-        runbookDto.setRunbookId(runbook.getRunbookId());
-        runbookDto.setName(runbook.getName());
-        runbookDto.setOwnerId(runbook.getOwnerId());
-        runbookDto.setCompleted(runbook.isCompleted());
+    public void addTask(AddTask addTask) {
+        // Retrieve Aggregate
+        Runbook runbook = runbookRepository.getOne(addTask.getRunbookId());
 
-        return runbookDto;
+        // Dispatch Add Task
+        runbook.handle(addTask);
+
+        // Persist
+        runbookRepository.save(runbook);
     }
 }
