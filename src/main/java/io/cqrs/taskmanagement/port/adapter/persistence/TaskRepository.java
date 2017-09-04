@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.persistence.repository;
+package io.cqrs.taskmanagement.port.adapter.persistence;
 
 import io.cqrs.taskmanagement.domain.model.runbook.Task;
 import org.springframework.data.jpa.repository.JpaRepository;

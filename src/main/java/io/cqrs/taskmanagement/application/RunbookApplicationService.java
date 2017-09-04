@@ -7,7 +7,7 @@ import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
-import io.cqrs.taskmanagement.port.adapter.persistence.repository.RunbookRepository;
+import io.cqrs.taskmanagement.port.adapter.persistence.RunbookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
