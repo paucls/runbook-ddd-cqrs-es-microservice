@@ -2,6 +2,7 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.application.EventPublisherStub;
 import io.cqrs.taskmanagement.domain.model.Aggregate;
+import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 
 import javax.persistence.CascadeType;
@@ -10,7 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -29,10 +32,14 @@ public class Runbook implements Aggregate {
     private boolean isCompleted;
 
     @Transient
+    private List<DomainEvent> uncommitedEvents;
+
+    @Transient
     private DomainEventPublisher eventPublisher;
 
     // empty constructor for rest api TODO: probably we need a DTO there
     Runbook() {
+        this.uncommitedEvents = new ArrayList<>();
         this.eventPublisher = new EventPublisherStub(); // JPA is using this constructor.
         // As a quick hack, instantiating directly the event publisher here.
         // TODO: Redesign AR to not use a event publisher and instead use a collection of Unpublished events.
@@ -40,6 +47,7 @@ public class Runbook implements Aggregate {
 
     // constructor needed for reconstruction
     Runbook(DomainEventPublisher eventPublisher) {
+        this.uncommitedEvents = new ArrayList<>();
         this.eventPublisher = eventPublisher;
     }
 
@@ -68,22 +76,29 @@ public class Runbook implements Aggregate {
         return ownerId;
     }
 
+    public List<DomainEvent> getUncommitedEvents() {
+        return uncommitedEvents;
+    }
+
     //
     // Handle
     //
 
     // Note this constructor is also a command handler
     public Runbook(CreateRunbook c, DomainEventPublisher eventPublisher) {
+        this.uncommitedEvents = new ArrayList<>();
         this.eventPublisher = eventPublisher;
 
         RunbookCreated runbookCreated = new RunbookCreated(c.getProjectId(), c.getRunbookId(), c.getName(), c.getOwnerId());
         eventPublisher.publish(runbookCreated);
+        uncommitedEvents.add(runbookCreated);
         apply(runbookCreated);
     }
 
     public void handle(AddTask c) {
         TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), c.getDescription(), c.getAssigneeId());
         eventPublisher.publish(taskAdded);
+        uncommitedEvents.add(taskAdded);
         apply(taskAdded);
     }
 
@@ -92,6 +107,7 @@ public class Runbook implements Aggregate {
 
         TaskMarkedInProgress taskMarkedInProgress = new TaskMarkedInProgress(c.getTaskId());
         eventPublisher.publish(taskMarkedInProgress);
+        uncommitedEvents.add(taskMarkedInProgress);
         apply(taskMarkedInProgress);
     }
 
@@ -101,6 +117,7 @@ public class Runbook implements Aggregate {
 
         TaskCompleted taskCompleted = new TaskCompleted(c.getTaskId(), c.getUserId());
         eventPublisher.publish(taskCompleted);
+        uncommitedEvents.add(taskCompleted);
         apply(taskCompleted);
     }
 
@@ -110,6 +127,7 @@ public class Runbook implements Aggregate {
 
         RunbookCompleted runbookCompleted = new RunbookCompleted(c.getRunbookId());
         eventPublisher.publish(runbookCompleted);
+        uncommitedEvents.add(runbookCompleted);
         apply(runbookCompleted);
     }
 
