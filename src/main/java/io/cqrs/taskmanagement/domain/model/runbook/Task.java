@@ -2,6 +2,7 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -13,6 +14,10 @@ public class Task implements Aggregate {
 
     @Id
     private String taskId;
+
+    @Column(name = "runbook_id")
+    private String runbookId;
+
     private String assigneeId;
     private String name;
     private String description;
@@ -32,6 +37,10 @@ public class Task implements Aggregate {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public String getRunbookId() {
+        return runbookId;
     }
 
     public String getAssigneeId() {

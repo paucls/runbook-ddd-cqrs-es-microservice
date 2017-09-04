@@ -125,6 +125,6 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
     public ResponseEntity<List<Task>> getTasksForRunbook(@RequestParam String runbookId) {
-        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK); //TODO: this should be find tasks for a single runbook
+        return new ResponseEntity<>(taskRepository.findTasksByRunbookId(runbookId), HttpStatus.OK);
     }
 }
