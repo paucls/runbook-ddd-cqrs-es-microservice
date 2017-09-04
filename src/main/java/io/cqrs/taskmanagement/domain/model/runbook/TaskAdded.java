@@ -8,5 +8,5 @@ public class TaskAdded implements DomainEvent {
     String taskId;
     String name;
     String description;
-    String userId;
+    String assigneeId;
 }

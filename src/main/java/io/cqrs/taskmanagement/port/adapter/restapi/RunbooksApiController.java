@@ -72,16 +72,16 @@ public class RunbooksApiController implements RunbooksApi {
 
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = Task.class)})
-    @RequestMapping(value = "/runbooks/{runbookId}/actions/add-task", method = RequestMethod.POST)
-    public ResponseEntity<Task> addTask(@RequestParam String runbookId, @RequestBody AddTask c) {
+    @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.POST)
+    public ResponseEntity<Task> addTask(@RequestParam String runbookId, @RequestBody Task task) {
         String taskId = UUID.randomUUID().toString();
 
         runbookApplicationService.addTask(new AddTask(
                 runbookId,
                 taskId,
-                c.getName(),
-                c.getDescription(),
-                SAMPLE_USER_ID));
+                task.getName(),
+                task.getDescription(),
+                task.getAssigneeId()));
 
         return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
     }
@@ -125,6 +125,6 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
     public ResponseEntity<List<Task>> getTasksForRunbook(@RequestParam String runbookId) {
-        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK); //TODO: this should be find tasks for a single runbook    
+        return new ResponseEntity<>(taskRepository.findAll(), HttpStatus.OK); //TODO: this should be find tasks for a single runbook
     }
 }

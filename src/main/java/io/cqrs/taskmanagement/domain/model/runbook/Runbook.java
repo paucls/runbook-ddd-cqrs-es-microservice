@@ -82,7 +82,7 @@ public class Runbook implements Aggregate {
     }
 
     public void handle(AddTask c) {
-        TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), "description", "user-id");
+        TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), c.getDescription(), c.getAssigneeId());
         eventPublisher.publish(taskAdded);
         apply(taskAdded);
     }
@@ -126,7 +126,7 @@ public class Runbook implements Aggregate {
 
     private void verifyAssignee(String taskId, String userId) {
         Task task = tasks.get(taskId);
-        if (!task.getUserId().equals(userId)) {
+        if (!task.getAssigneeId().equals(userId)) {
             throw new TaskAssignedToDifferentUserException();
         }
     }
@@ -151,7 +151,7 @@ public class Runbook implements Aggregate {
     }
 
     void apply(TaskAdded e) {
-        tasks.put(e.getTaskId(), new Task(e.getTaskId(), e.getUserId()));
+        tasks.put(e.getTaskId(), new Task(e.getTaskId(), e.getName(), e.getDescription(), e.getAssigneeId()));
     }
 
     void apply(TaskMarkedInProgress e) {

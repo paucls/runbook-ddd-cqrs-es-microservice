@@ -13,16 +13,20 @@ public class Task implements Aggregate {
 
     @Id
     private String taskId;
-    private String userId;
+    private String assigneeId;
+    private String name;
+    private String description;
     private String status;
 
     // constructor needed for JPA persistence
     public Task() {
     }
 
-    public Task(String taskId, String userId) {
+    public Task(String taskId, String name, String description, String assigneeId) {
         this.taskId = taskId;
-        this.userId = userId;
+        this.name = name;
+        this.description = description;
+        this.assigneeId = assigneeId;
         this.status = OPENED;
     }
 
@@ -30,8 +34,16 @@ public class Task implements Aggregate {
         return taskId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAssigneeId() {
+        return assigneeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getStatus() {
