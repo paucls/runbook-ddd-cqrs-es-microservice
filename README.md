@@ -25,3 +25,4 @@ Links to some of the articles and documentation used to implement this project:
 - Aggregate Root – How to Build One for CQRS and Event Sourcing, Daniel Whittaker http://danielwhittaker.me/2014/11/15/aggregate-root-cqrs-event-sourcing/
 - How To Validate Commands in a CQRS Application, Daniel Whittaker http://danielwhittaker.me/2016/04/20/how-to-validate-commands-in-a-cqrs-application/
 - CQRS Commands and Queries - Do they belong in the domain? https://stackoverflow.com/questions/32216408/cqrs-commands-and-queries-do-they-belong-in-the-domain
+- Implementing an Event Sourced Aggregate, Nick Chamberlain https://buildplease.com/pages/fpc-9/
