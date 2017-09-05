@@ -26,9 +26,10 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-web')
     // Springfox
-    compile("io.springfox:springfox-swagger2:2.7.0")
+    compile('io.springfox:springfox-swagger2:2.7.0')
     compile('io.springfox:springfox-swagger-ui:2.7.0')
-    compile("joda-time:joda-time:2.3")
+    compile('joda-time:joda-time:2.3')
     runtime('com.h2database:h2')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile ('org.assertj:assertj-core:3.8.0')
 }

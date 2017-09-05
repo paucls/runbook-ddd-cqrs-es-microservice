@@ -1,6 +1,5 @@
 package io.cqrs.taskmanagement.application;
 
-import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
@@ -14,26 +13,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class RunbookApplicationService {
 
-    private DomainEventPublisher eventPublisher;
     private RunbookRepository runbookRepository;
     private EventStore eventStore;
 
     @Autowired
-    public RunbookApplicationService(DomainEventPublisher eventPublisher,
-                                     RunbookRepository runbookRepository,
-                                     EventStore eventStore) {
-        this.eventPublisher = eventPublisher;
+    public RunbookApplicationService(RunbookRepository runbookRepository, EventStore eventStore) {
         this.runbookRepository = runbookRepository;
         this.eventStore = eventStore;
     }
 
     public void createRunbook(CreateRunbook createRunbook) {
         // Dispatch Create Runbook
-        Runbook runbook = new Runbook(createRunbook, eventPublisher);
+        Runbook runbook = new Runbook(createRunbook);
 
         // Persist
-        runbookRepository.save(runbook);
-        eventStore.append(runbook.getUncommitedEvents());
+        eventStore.append(runbook.getUncommitedEvents()); // Another option is to introduce a EventSourcedRepository and handle this inside the save method
     }
 
     public void addTask(AddTask c) {
@@ -44,7 +38,6 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
         eventStore.append(runbook.getUncommitedEvents());
     }
 
@@ -56,7 +49,6 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
         eventStore.append(runbook.getUncommitedEvents());
     }
 
@@ -68,7 +60,6 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
         eventStore.append(runbook.getUncommitedEvents());
     }
 
@@ -80,7 +71,6 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
         eventStore.append(runbook.getUncommitedEvents());
     }
 }

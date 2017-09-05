@@ -1,14 +1,20 @@
 package io.cqrs.taskmanagement.port.adapter.persistence;
 
 import io.cqrs.taskmanagement.domain.model.runbook.Task;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Repository
-public interface TaskRepository extends JpaRepository<Task, String> {
+@Component
+public class TaskRepository {
 
-    public List<Task> findTasksByRunbookId(String runbookId);
+    public Task getOne(String taskId) {
+        return null;
+    }
+
+    public List<Task> findTasksByRunbookId(String runbookId) {
+        return new ArrayList<>();
+    }
 
 }
