@@ -1,6 +1,5 @@
 package io.cqrs.taskmanagement.application;
 
-import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
@@ -9,7 +8,6 @@ import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
 import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStore;
-import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStoreRepository;
 import io.cqrs.taskmanagement.port.adapter.persistence.RunbookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,14 +15,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class RunbookApplicationService {
 
-    @Autowired
     private DomainEventPublisher eventPublisher;
-
-    @Autowired
     private RunbookRepository runbookRepository;
+    private JpaEventStore eventStore;
 
     @Autowired
-    private JpaEventStore eventStore;
+    public RunbookApplicationService(DomainEventPublisher eventPublisher,
+                                     RunbookRepository runbookRepository,
+                                     JpaEventStore eventStore) {
+        this.eventPublisher = eventPublisher;
+        this.runbookRepository = runbookRepository;
+        this.eventStore = eventStore;
+    }
 
     public void createRunbook(CreateRunbook createRunbook) {
         // Dispatch Create Runbook
