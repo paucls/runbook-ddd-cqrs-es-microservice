@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class RunbooksApiController implements RunbooksApi {
      * Commands
      */
 
-    @ApiOperation(value = "", notes = "Creates a new Runbook", response = RunbookDto.class, tags = {})
+    @ApiOperation(value = "", notes = "Creates a new Runbook", response = Runbook.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook created successfully", response = Runbook.class)})
     @RequestMapping(value = "/runbooks", method = RequestMethod.POST)
     public ResponseEntity<Runbook> createRunbook(@RequestBody RunbookDto runbookDto) {
@@ -73,15 +74,15 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.POST)
-    public ResponseEntity<Task> addTask(@PathVariable String runbookId, @RequestBody Task task) {
+    public ResponseEntity<Task> addTask(@PathVariable String runbookId, @RequestBody TaskDto taskDto) {
         String taskId = UUID.randomUUID().toString();
 
         runbookApplicationService.addTask(new AddTask(
                 runbookId,
                 taskId,
-                task.getName(),
-                task.getDescription(),
-                task.getAssigneeId()));
+                taskDto.getName(),
+                taskDto.getDescription(),
+                taskDto.getAssigneeId()));
 
         return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
     }
