@@ -2,6 +2,7 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEvent;
+import io.cqrs.taskmanagement.event.sourcing.EventStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,10 +22,17 @@ public class Runbook implements Aggregate {
 
     // empty constructor for rest api TODO: probably we need a DTO there
     Runbook() {
+        this.tasks = new HashMap<>();
         this.uncommitedEvents = new ArrayList<>();
     }
 
-    // TODO: constructor needed for reconstruction
+    public Runbook(EventStream eventStream) {
+        this.tasks = new HashMap<>();
+        this.uncommitedEvents = new ArrayList<>();
+
+        // Reinstate this aggregate to latest version
+        eventStream.getEvents().forEach(this::applyDomainEvent);
+    }
 
     Map<String, Task> getTasks() {
         return this.tasks;
@@ -61,6 +69,7 @@ public class Runbook implements Aggregate {
 
     // Note this constructor is also a command handler
     public Runbook(CreateRunbook c) {
+        this.tasks = new HashMap<>();
         this.uncommitedEvents = new ArrayList<>();
 
         RunbookCreated runbookCreated = new RunbookCreated(c.getProjectId(), c.getRunbookId(), c.getName(), c.getOwnerId());
@@ -152,5 +161,25 @@ public class Runbook implements Aggregate {
 
     void apply(TaskCompleted e) {
         tasks.get(e.getTaskId()).apply(e);
+    }
+
+    // TODO find a better why to apply an event from the event stream
+    void applyDomainEvent(DomainEvent e) {
+        System.out.println("Reinstate aggregate with event: " + e);
+
+        switch (e.getClass().getName()) {
+            case "io.cqrs.taskmanagement.domain.model.runbook.RunbookCreated":
+                apply((RunbookCreated) e);
+                break;
+            case "io.cqrs.taskmanagement.domain.model.runbook.TaskAdded":
+                apply((TaskAdded) e);
+                break;
+            case "io.cqrs.taskmanagement.domain.model.runbook.RunbookCompleted":
+                apply((RunbookCompleted) e);
+                break;
+            case "io.cqrs.taskmanagement.domain.model.runbook.TaskCompleted":
+                apply((TaskCompleted) e);
+                break;
+        }
     }
 }

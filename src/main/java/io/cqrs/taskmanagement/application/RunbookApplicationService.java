@@ -6,6 +6,8 @@ import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
+import io.cqrs.taskmanagement.event.sourcing.EventStore;
+import io.cqrs.taskmanagement.event.sourcing.EventStream;
 import io.cqrs.taskmanagement.port.adapter.persistence.RunbookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,18 +29,19 @@ public class RunbookApplicationService {
         Runbook runbook = new Runbook(createRunbook);
 
         // Persist
-        eventStore.append(runbook.getUncommitedEvents()); // Another option is to introduce a EventSourcedRepository and handle this inside the save method
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0); // Another option is to introduce a EventSourcedRepository and handle this inside the save method
     }
 
     public void addTask(AddTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Add Task
         runbook.handle(c);
 
         // Persist
-        eventStore.append(runbook.getUncommitedEvents());
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void startTask(StartTask c) {
@@ -49,7 +52,7 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        eventStore.append(runbook.getUncommitedEvents());
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
     }
 
     public void completeTask(CompleteTask c) {
@@ -60,7 +63,7 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        eventStore.append(runbook.getUncommitedEvents());
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
     }
 
     public void completeRunbook(CompleteRunbook c) {
@@ -71,6 +74,6 @@ public class RunbookApplicationService {
         runbook.handle(c);
 
         // Persist
-        eventStore.append(runbook.getUncommitedEvents());
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
     }
 }
