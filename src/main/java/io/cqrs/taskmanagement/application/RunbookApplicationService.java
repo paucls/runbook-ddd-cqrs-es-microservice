@@ -8,19 +8,16 @@ import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
 import io.cqrs.taskmanagement.event.sourcing.EventStore;
 import io.cqrs.taskmanagement.event.sourcing.EventStream;
-import io.cqrs.taskmanagement.port.adapter.persistence.RunbookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RunbookApplicationService {
 
-    private RunbookRepository runbookRepository;
     private EventStore eventStore;
 
     @Autowired
-    public RunbookApplicationService(RunbookRepository runbookRepository, EventStore eventStore) {
-        this.runbookRepository = runbookRepository;
+    public RunbookApplicationService(EventStore eventStore) {
         this.eventStore = eventStore;
     }
 
@@ -46,34 +43,37 @@ public class RunbookApplicationService {
 
     public void startTask(StartTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void completeTask(CompleteTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void completeRunbook(CompleteRunbook c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 }
