@@ -17,10 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -62,7 +62,7 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Complete Runbook", response = Runbook.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook completed successfully", response = Runbook.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/actions/complete", method = RequestMethod.POST)
-    public ResponseEntity<Runbook> completeRunbook(@RequestParam String runbookId) {
+    public ResponseEntity<Runbook> completeRunbook(@PathVariable String runbookId) {
         runbookApplicationService.completeRunbook(new CompleteRunbook(
                 runbookId,
                 SAMPLE_USER_ID));
@@ -73,7 +73,7 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.POST)
-    public ResponseEntity<Task> addTask(@RequestParam String runbookId, @RequestBody Task task) {
+    public ResponseEntity<Task> addTask(@PathVariable String runbookId, @RequestBody Task task) {
         String taskId = UUID.randomUUID().toString();
 
         runbookApplicationService.addTask(new AddTask(
@@ -89,7 +89,7 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Start Task", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task started successfully", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks/{taskId}/actions/start", method = RequestMethod.POST)
-    public ResponseEntity<Task> startTask(@RequestParam String runbookId, @RequestParam String taskId) {
+    public ResponseEntity<Task> startTask(@PathVariable String runbookId, @PathVariable String taskId) {
         runbookApplicationService.startTask(new StartTask(
                 runbookId,
                 taskId,
@@ -101,7 +101,7 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Complete Task", response = Task.class, tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Task completed successfully", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks/{taskId}/actions/complete", method = RequestMethod.POST)
-    public ResponseEntity<Task> completeTask(@RequestParam String runbookId, @RequestParam String taskId) {
+    public ResponseEntity<Task> completeTask(@PathVariable String runbookId, @PathVariable String taskId) {
         runbookApplicationService.completeTask(new CompleteTask(
                 runbookId,
                 taskId,
@@ -124,7 +124,7 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiOperation(value = "", notes = "Gets the list of Tasks for a Runbook. ", response = Task.class, responseContainer = "List", tags = {})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = Task.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
-    public ResponseEntity<List<Task>> getTasksForRunbook(@RequestParam String runbookId) {
+    public ResponseEntity<List<Task>> getTasksForRunbook(@PathVariable String runbookId) {
         return new ResponseEntity<>(taskRepository.findTasksByRunbookId(runbookId), HttpStatus.OK);
     }
 }
