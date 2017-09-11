@@ -3,13 +3,16 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import io.cqrs.taskmanagement.event.sourcing.EventStream;
+import io.cqrs.taskmanagement.port.adapter.persistence.EventSourcedAggregate;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Runbook implements Aggregate {
+public class Runbook extends EventSourcedAggregate {
 
     private String runbookId;
     private Map<String, Task> tasks;
@@ -31,7 +34,7 @@ public class Runbook implements Aggregate {
         this.uncommitedEvents = new ArrayList<>();
 
         // Reinstate this aggregate to latest version
-        eventStream.getEvents().forEach(this::applyDomainEvent);
+        eventStream.getEvents().forEach(this::reapplyDomainEvent);
     }
 
     Map<String, Task> getTasks() {
@@ -163,23 +166,10 @@ public class Runbook implements Aggregate {
         tasks.get(e.getTaskId()).apply(e);
     }
 
-    // TODO find a better why to apply an event from the event stream
-    void applyDomainEvent(DomainEvent e) {
-        System.out.println("Reinstate aggregate with event: " + e);
+    private void reapplyDomainEvent(DomainEvent event) {
+        System.out.println("Reinstate aggregate with event: " + event);
 
-        switch (e.getClass().getName()) {
-            case "io.cqrs.taskmanagement.domain.model.runbook.RunbookCreated":
-                apply((RunbookCreated) e);
-                break;
-            case "io.cqrs.taskmanagement.domain.model.runbook.TaskAdded":
-                apply((TaskAdded) e);
-                break;
-            case "io.cqrs.taskmanagement.domain.model.runbook.RunbookCompleted":
-                apply((RunbookCompleted) e);
-                break;
-            case "io.cqrs.taskmanagement.domain.model.runbook.TaskCompleted":
-                apply((TaskCompleted) e);
-                break;
-        }
+        this.applyDomainEvent(this.getClass(), event);
     }
+
 }
