@@ -1,12 +1,9 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-import io.cqrs.taskmanagement.domain.model.Aggregate;
 import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import io.cqrs.taskmanagement.event.sourcing.EventStream;
 import io.cqrs.taskmanagement.port.adapter.persistence.EventSourcedAggregate;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +31,7 @@ public class Runbook extends EventSourcedAggregate {
         this.uncommitedEvents = new ArrayList<>();
 
         // Reinstate this aggregate to latest version
-        eventStream.getEvents().forEach(this::reapplyDomainEvent);
+        eventStream.getEvents().forEach(this::reapply);
     }
 
     Map<String, Task> getTasks() {
@@ -154,7 +151,6 @@ public class Runbook extends EventSourcedAggregate {
     }
 
     void apply(TaskMarkedInProgress e) {
-        // TODO Which aggregate should be responsible to apply the task status change?
         tasks.get(e.getTaskId()).apply(e);
     }
 
@@ -166,10 +162,13 @@ public class Runbook extends EventSourcedAggregate {
         tasks.get(e.getTaskId()).apply(e);
     }
 
-    private void reapplyDomainEvent(DomainEvent event) {
-        System.out.println("Reinstate aggregate with event: " + event);
+    /**
+     * Used to reinstate aggregate to latest version
+     */
+    private void reapply(DomainEvent e) {
+        System.out.println("Reinstate aggregate with event: " + e);
 
-        this.applyDomainEvent(this.getClass(), event);
+        this.applyDomainEvent(this.getClass(), e);
     }
 
 }
