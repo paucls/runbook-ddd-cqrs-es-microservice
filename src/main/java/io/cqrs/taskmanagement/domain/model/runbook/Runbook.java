@@ -2,7 +2,7 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import io.cqrs.taskmanagement.event.sourcing.EventStream;
-import io.cqrs.taskmanagement.port.adapter.persistence.EventSourcedAggregate;
+import io.cqrs.taskmanagement.domain.model.EventSourcedAggregate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
