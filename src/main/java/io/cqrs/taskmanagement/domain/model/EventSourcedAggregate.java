@@ -1,10 +1,15 @@
 package io.cqrs.taskmanagement.domain.model;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 public abstract class EventSourcedAggregate implements Aggregate {
 
     private static final String APPLY_METHOD_NAME = "apply";
+
+    public void apply(List<DomainEvent> events) {
+        events.forEach(this::apply);
+    }
 
     public void apply(DomainEvent event) {
         Class<? extends DomainEvent> eventType = event.getClass();

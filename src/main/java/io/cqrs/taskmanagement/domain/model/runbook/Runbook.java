@@ -31,7 +31,7 @@ public class Runbook extends EventSourcedAggregate {
         this.uncommitedEvents = new ArrayList<>();
 
         // Reinstate this aggregate to latest version
-        eventStream.getEvents().forEach(this::apply);
+        this.apply(eventStream.getEvents());
     }
 
     Map<String, Task> getTasks() {
