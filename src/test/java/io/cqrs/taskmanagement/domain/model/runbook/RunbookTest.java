@@ -1,13 +1,18 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
+import io.cqrs.taskmanagement.domain.model.Command;
+import io.cqrs.taskmanagement.domain.model.DomainEvent;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
 
 public class RunbookTest {
 
@@ -174,5 +179,23 @@ public class RunbookTest {
         // Then
         assertThat(runbook.getUncommitedEvents().get(0), is(new RunbookCompleted(RUNBOOK_ID)));
         assertThat(runbook.isCompleted(), is(true));
+    }
+
+    private void given(DomainEvent... events) {
+        runbook.apply(Arrays.asList(events));
+    }
+
+    private void when(Command command) {
+        runbook.handle(command);
+    }
+
+    private void then(DomainEvent... events) {
+        List<DomainEvent> uncommitedEvents = runbook.getUncommitedEvents();
+
+        for (DomainEvent event : events) {
+            assertThat("Expected domain event was not published", uncommitedEvents, hasItem(event));
+        }
+
+        assertThat("Unexpected number of published domain events", uncommitedEvents.size(), is(events.length));
     }
 }

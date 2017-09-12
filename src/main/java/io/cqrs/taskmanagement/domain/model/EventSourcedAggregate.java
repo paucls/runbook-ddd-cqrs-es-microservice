@@ -6,7 +6,11 @@ import java.util.List;
 public abstract class EventSourcedAggregate implements Aggregate {
 
     private static final String APPLY_METHOD_NAME = "apply";
+    private static final String HANDLE_METHOD_NAME = "handle";
 
+    /**
+     * A convenient Handle method used by the Aggregate reinstate constructor and also by unit tests.
+     */
     public void apply(List<DomainEvent> events) {
         events.forEach(this::apply);
     }
@@ -26,6 +30,24 @@ public abstract class EventSourcedAggregate implements Aggregate {
         Method applyMethod = aggregateType.getDeclaredMethod(APPLY_METHOD_NAME, domainEventType);
         applyMethod.setAccessible(true);
         return applyMethod;
+    }
+
+    /**
+     * A convenient Handle method used by unit tests.
+     */
+    public void handle(Command command) {
+        Class<? extends Command> commandClass = command.getClass();
+        try {
+            getHandleMethod(this.getClass(), commandClass).invoke(this, command);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Aggregate do not know how to handle " + commandClass);
+        }
+    }
+
+    private Method getHandleMethod(
+            Class<? extends EventSourcedAggregate> aggregateType,
+            Class<? extends Command> commandType) throws NoSuchMethodException {
+        return aggregateType.getDeclaredMethod(HANDLE_METHOD_NAME, commandType);
     }
 
 }
