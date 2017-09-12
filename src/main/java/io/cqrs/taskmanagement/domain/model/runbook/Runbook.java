@@ -31,7 +31,7 @@ public class Runbook extends EventSourcedAggregate {
         this.uncommitedEvents = new ArrayList<>();
 
         // Reinstate this aggregate to latest version
-        eventStream.getEvents().forEach(this::reapply);
+        eventStream.getEvents().forEach(this::apply);
     }
 
     Map<String, Task> getTasks() {
@@ -137,7 +137,7 @@ public class Runbook extends EventSourcedAggregate {
     // Apply
     //
 
-    void apply(RunbookCreated c) {
+    private void apply(RunbookCreated c) {
         this.projectId = c.getProjectId();
         this.runbookId = c.getRunbookId();
         this.name = c.getName();
@@ -146,29 +146,20 @@ public class Runbook extends EventSourcedAggregate {
         this.tasks = new HashMap<>();
     }
 
-    void apply(TaskAdded e) {
+    private void apply(TaskAdded e) {
         tasks.put(e.getTaskId(), new Task(e.getTaskId(), e.getName(), e.getDescription(), e.getAssigneeId()));
     }
 
-    void apply(TaskMarkedInProgress e) {
+    private void apply(TaskMarkedInProgress e) {
         tasks.get(e.getTaskId()).apply(e);
     }
 
-    void apply(RunbookCompleted e) {
+    private void apply(RunbookCompleted e) {
         this.isCompleted = true;
     }
 
-    void apply(TaskCompleted e) {
+    private void apply(TaskCompleted e) {
         tasks.get(e.getTaskId()).apply(e);
-    }
-
-    /**
-     * Used to reinstate aggregate to latest version
-     */
-    private void reapply(DomainEvent e) {
-        System.out.println("Reinstate aggregate with event: " + e);
-
-        this.applyDomainEvent(this.getClass(), e);
     }
 
 }

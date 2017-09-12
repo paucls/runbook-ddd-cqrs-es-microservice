@@ -4,11 +4,12 @@ import java.lang.reflect.Method;
 
 public abstract class EventSourcedAggregate implements Aggregate {
 
-    protected void applyDomainEvent(Class<? extends EventSourcedAggregate> aggregateType,
-                                    DomainEvent event) {
+    private static final String APPLY_METHOD_NAME = "apply";
+
+    public void apply(DomainEvent event) {
         Class<? extends DomainEvent> eventType = event.getClass();
         try {
-            getApplyMethod(aggregateType, eventType).invoke(this, event);
+            getApplyMethod(this.getClass(), eventType).invoke(this, event);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Aggregate do not know how to apply " + eventType);
         }
@@ -17,9 +18,9 @@ public abstract class EventSourcedAggregate implements Aggregate {
     private Method getApplyMethod(
             Class<? extends EventSourcedAggregate> aggregateType,
             Class<? extends DomainEvent> domainEventType) throws NoSuchMethodException {
-        Method applyMethod = aggregateType.getDeclaredMethod("apply", domainEventType);
+        Method applyMethod = aggregateType.getDeclaredMethod(APPLY_METHOD_NAME, domainEventType);
         applyMethod.setAccessible(true);
-        return  applyMethod;
+        return applyMethod;
     }
 
 }
