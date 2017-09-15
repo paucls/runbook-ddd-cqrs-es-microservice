@@ -7,6 +7,9 @@ public abstract class EventSourcedAggregate implements Aggregate {
 
     private static final String APPLY_METHOD_NAME = "apply";
 
+    /**
+     * A convenient Handle method used by the Aggregate reinstate constructor and also by unit tests.
+     */
     public void apply(List<DomainEvent> events) {
         events.forEach(this::apply);
     }
