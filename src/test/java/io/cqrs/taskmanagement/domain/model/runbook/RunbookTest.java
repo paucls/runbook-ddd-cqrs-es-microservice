@@ -53,35 +53,42 @@ public class RunbookTest {
 
     @Test
     public void can_add_task() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID)
+        );
 
-        // When
-        runbook.handle(new AddTask(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        when(
+                new AddTask(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)
+        );
 
-        // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)));
+        then(
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)
+        );
         assertThat(runbook.getTasks().size(), is(1)); // TODO do we really need this?
     }
 
     @Test
     public void can_start_task() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)
+        );
 
-        // When
-        runbook.handle(new StartTask(RUNBOOK_ID, TASK_ID, USER_ID));
+        when(
+                new StartTask(RUNBOOK_ID, TASK_ID, USER_ID)
+        );
 
-        // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskMarkedInProgress(TASK_ID)));
+        then(
+                new TaskMarkedInProgress(TASK_ID)
+        );
     }
 
     @Test
     public void cannot_start_task_assigned_to_different_user() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)
+        );
 
         exception.expect(TaskAssignedToDifferentUserException.class);
 
@@ -91,24 +98,28 @@ public class RunbookTest {
 
     @Test
     public void can_complete_task() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskMarkedInProgress(TASK_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID),
+                new TaskMarkedInProgress(TASK_ID)
+        );
 
-        // When
-        runbook.handle(new CompleteTask(RUNBOOK_ID, TASK_ID, USER_ID));
+        when(
+                new CompleteTask(RUNBOOK_ID, TASK_ID, USER_ID)
+        );
 
-        // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskCompleted(TASK_ID, USER_ID)));
+        then(
+                new TaskCompleted(TASK_ID, USER_ID)
+        );
     }
 
     @Test
     public void cannot_complete_task_assigned_to_different_user() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskMarkedInProgress(TASK_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID),
+                new TaskMarkedInProgress(TASK_ID)
+        );
 
         exception.expect(TaskAssignedToDifferentUserException.class);
 
@@ -118,9 +129,10 @@ public class RunbookTest {
 
     @Test
     public void cannot_complete_task_that_is_not_started() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)
+        );
 
         exception.expect(CanOnlyCompleteInProgressTaskException.class);
 
@@ -130,8 +142,9 @@ public class RunbookTest {
 
     @Test
     public void cannot_complete_runbook_if_not_the_owner() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID)
+        );
 
         exception.expect(RunbookOwnedByDifferentUserException.class);
 
@@ -141,24 +154,28 @@ public class RunbookTest {
 
     @Test
     public void can_complete_runbook() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID)
+        );
 
-        // When
-        runbook.handle(new CompleteRunbook(RUNBOOK_ID, USER_ID));
+        when(
+                new CompleteRunbook(RUNBOOK_ID, USER_ID)
+        );
 
-        // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new RunbookCompleted(RUNBOOK_ID)));
+        then(
+                new RunbookCompleted(RUNBOOK_ID)
+        );
         assertThat(runbook.isCompleted(), is(true));
     }
 
     @Test
     public void can_not_complete_runbook_with_pending_tasks() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded("task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskAdded("task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskCompleted("task-id-1", USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID),
+                new TaskAdded("task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID),
+                new TaskAdded("task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID),
+                new TaskCompleted("task-id-1", USER_ID)
+        );
 
         exception.expect(RunBookWithPendingTasksException.class);
 
@@ -168,16 +185,19 @@ public class RunbookTest {
 
     @Test
     public void can_complete_runbook_with_all_tasks_completed() {
-        // Given
-        runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskCompleted(TASK_ID, USER_ID));
+        given(
+                new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID),
+                new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID),
+                new TaskCompleted(TASK_ID, USER_ID)
+        );
 
-        // When
-        runbook.handle(new CompleteRunbook(RUNBOOK_ID, USER_ID));
+        when(
+                new CompleteRunbook(RUNBOOK_ID, USER_ID)
+        );
 
-        // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new RunbookCompleted(RUNBOOK_ID)));
+        then(
+                new RunbookCompleted(RUNBOOK_ID)
+        );
         assertThat(runbook.isCompleted(), is(true));
     }
 
