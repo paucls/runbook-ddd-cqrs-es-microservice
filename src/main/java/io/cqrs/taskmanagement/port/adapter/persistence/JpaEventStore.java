@@ -8,6 +8,7 @@ import io.cqrs.taskmanagement.event.sourcing.EventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,8 +46,12 @@ public class JpaEventStore implements EventStore {
     }
 
     @Override
-    public EventStream loadEventStream(String aggregateId) {
+    public EventStream loadEventStream(String aggregateId) throws EntityNotFoundException {
         List<JpaStoredEvent> storedEvents = eventStoreRepository.findJpaStoredEventByAggregateId(aggregateId);
+
+        if (storedEvents.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
 
         List<DomainEvent> events = new ArrayList<>();
         for (JpaStoredEvent storedEvent : storedEvents) {

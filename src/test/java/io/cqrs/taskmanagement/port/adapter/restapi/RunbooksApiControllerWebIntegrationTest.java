@@ -1,7 +1,6 @@
 package io.cqrs.taskmanagement.port.adapter.restapi;
 
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
-import io.cqrs.taskmanagement.domain.model.runbook.Task;
 import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStoreRepository;
 import org.junit.After;
 import org.junit.Test;
@@ -10,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -55,11 +57,26 @@ public class RunbooksApiControllerWebIntegrationTest {
         TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
         HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
 
-        restTemplate.postForObject(url, createTaskRequest, Task.class);
+        ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.POST, createTaskRequest, TaskDto.class);
 
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(eventStoreRepository.count()).isEqualTo(2);
         assertThat(eventStoreRepository.findAll().get(1).getAggregateId()).isEqualTo(runbookId);
         assertThat(eventStoreRepository.findAll().get(1).getTypeName()).contains("TaskAdded");
     }
+
+//    @Test
+//    public void createTask_when_nonexisting_runbook_then_returns_404_not_found() {
+//        String runbookId = "non-existing-runbook-id";
+//        String url = RUNBOOKS_URL + "/" + runbookId + "/tasks";
+//        TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
+//        HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
+//
+//        ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.POST, createTaskRequest, TaskDto.class);
+//
+//        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+//
+//        assertThat(eventStoreRepository.count()).isEqualTo(0);
+//    }
 
 }

@@ -70,10 +70,10 @@ public class RunbooksApiController implements RunbooksApi {
         return new ResponseEntity<>(runbookRepository.getOne(runbookId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = Task.class, tags = {})
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = Task.class)})
+    @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = TaskDto.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = TaskDto.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.POST)
-    public ResponseEntity<Task> addTask(@PathVariable String runbookId, @RequestBody TaskDto taskDto) {
+    public ResponseEntity<TaskDto> addTask(@PathVariable String runbookId, @RequestBody TaskDto taskDto) {
         String taskId = UUID.randomUUID().toString();
 
         runbookApplicationService.addTask(new AddTask(
@@ -83,7 +83,9 @@ public class RunbooksApiController implements RunbooksApi {
                 taskDto.getDescription(),
                 taskDto.getAssigneeId()));
 
-        return new ResponseEntity<>(taskRepository.getOne(taskId), HttpStatus.OK);
+        // TODO: Retrieve Task from query model
+        TaskDto createdTaskDto = new TaskDto();
+        return new ResponseEntity<>(createdTaskDto, HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Start Task", response = Task.class, tags = {})
