@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-interface JpaEventStoreRepository extends JpaRepository<JpaStoredEvent, String> {
+public interface JpaEventStoreRepository extends JpaRepository<JpaStoredEvent, String> {
 
     public List<JpaStoredEvent> findJpaStoredEventByAggregateId(String aggregateId);
 
