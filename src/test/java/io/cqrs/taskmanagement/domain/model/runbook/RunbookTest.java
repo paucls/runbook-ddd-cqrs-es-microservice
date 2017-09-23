@@ -55,7 +55,7 @@ public class RunbookTest {
         runbook.handle(new AddTask(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // Then
-        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)));
         assertThat(runbook.getTasks().size(), is(1)); // TODO do we really need this?
     }
 
@@ -63,7 +63,7 @@ public class RunbookTest {
     public void can_start_task() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // When
         runbook.handle(new StartTask(RUNBOOK_ID, TASK_ID, USER_ID));
@@ -76,7 +76,7 @@ public class RunbookTest {
     public void cannot_start_task_assigned_to_different_user() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         exception.expect(TaskAssignedToDifferentUserException.class);
 
@@ -88,7 +88,7 @@ public class RunbookTest {
     public void can_complete_task() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskMarkedInProgress(TASK_ID));
 
         // When
@@ -102,7 +102,7 @@ public class RunbookTest {
     public void cannot_complete_task_assigned_to_different_user() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskMarkedInProgress(TASK_ID));
 
         exception.expect(TaskAssignedToDifferentUserException.class);
@@ -115,7 +115,7 @@ public class RunbookTest {
     public void cannot_complete_task_that_is_not_started() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         exception.expect(CanOnlyCompleteInProgressTaskException.class);
 
@@ -151,8 +151,8 @@ public class RunbookTest {
     public void can_not_complete_runbook_with_pending_tasks() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded("task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskAdded("task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, "task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, "task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskCompleted("task-id-1", USER_ID));
 
         exception.expect(RunBookWithPendingTasksException.class);
@@ -165,7 +165,7 @@ public class RunbookTest {
     public void can_complete_runbook_with_all_tasks_completed() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskCompleted(TASK_ID, USER_ID));
 
         // When

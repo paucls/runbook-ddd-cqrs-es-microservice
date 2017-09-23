@@ -78,7 +78,7 @@ public class Runbook extends EventSourcedAggregate {
     }
 
     public void handle(AddTask c) {
-        TaskAdded taskAdded = new TaskAdded(c.getTaskId(), c.getName(), c.getDescription(), c.getAssigneeId());
+        TaskAdded taskAdded = new TaskAdded(c.getRunbookId(), c.getTaskId(), c.getName(), c.getDescription(), c.getAssigneeId());
         uncommitedEvents.add(taskAdded);
         apply(taskAdded);
     }
