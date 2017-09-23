@@ -6,6 +6,7 @@ import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
+import io.cqrs.taskmanagement.read.model.runbook.TaskQueries;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,6 +30,9 @@ public class RunbooksApiController implements RunbooksApi {
 
     @Autowired
     private RunbookApplicationService runbookApplicationService;
+
+    @Autowired
+    private TaskQueries taskQueries;
 
     /**
      * Commands
@@ -123,7 +127,6 @@ public class RunbooksApiController implements RunbooksApi {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = TaskDto.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
     public ResponseEntity<List<TaskDto>> getTasksForRunbook(@PathVariable String runbookId) {
-        // TODO: Retrieve Tasks from query model
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        return new ResponseEntity<>(taskQueries.tasksForRunbook(runbookId), HttpStatus.OK);
     }
 }
