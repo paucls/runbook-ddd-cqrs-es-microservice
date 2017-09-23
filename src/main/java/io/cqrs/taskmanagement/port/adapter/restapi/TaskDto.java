@@ -1,8 +1,10 @@
 package io.cqrs.taskmanagement.port.adapter.restapi;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class TaskDto {
     public String runbookId;
     public String taskId;
