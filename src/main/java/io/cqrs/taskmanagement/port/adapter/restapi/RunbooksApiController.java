@@ -5,9 +5,7 @@ import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
-import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
-import io.cqrs.taskmanagement.port.adapter.persistence.RunbookRepository;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -32,17 +30,14 @@ public class RunbooksApiController implements RunbooksApi {
     @Autowired
     private RunbookApplicationService runbookApplicationService;
 
-    @Autowired
-    private RunbookRepository runbookRepository;
-
     /**
      * Commands
      */
 
-    @ApiOperation(value = "", notes = "Creates a new Runbook", response = Runbook.class, tags = {})
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook created successfully", response = Runbook.class)})
+    @ApiOperation(value = "", notes = "Creates a new Runbook", response = RunbookDto.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook created successfully", response = RunbookDto.class)})
     @RequestMapping(value = "/runbooks", method = RequestMethod.POST)
-    public ResponseEntity<Runbook> createRunbook(@RequestBody RunbookDto runbookDto) {
+    public ResponseEntity<RunbookDto> createRunbook(@RequestBody RunbookDto runbookDto) {
         String runbookId = UUID.randomUUID().toString();
 
         runbookApplicationService.createRunbook(new CreateRunbook(
@@ -52,18 +47,20 @@ public class RunbooksApiController implements RunbooksApi {
                 SAMPLE_USER_ID
         ));
 
-        return new ResponseEntity<>(runbookRepository.getOne(runbookId), HttpStatus.OK);
+        // TODO: Retrieve from query model
+        return new ResponseEntity<>(new RunbookDto(), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "", notes = "Complete Runbook", response = Runbook.class, tags = {})
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook completed successfully", response = Runbook.class)})
+    @ApiOperation(value = "", notes = "Complete Runbook", response = RunbookDto.class, tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook completed successfully", response = RunbookDto.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/actions/complete", method = RequestMethod.POST)
-    public ResponseEntity<Runbook> completeRunbook(@PathVariable String runbookId) {
+    public ResponseEntity<RunbookDto> completeRunbook(@PathVariable String runbookId) {
         runbookApplicationService.completeRunbook(new CompleteRunbook(
                 runbookId,
                 SAMPLE_USER_ID));
 
-        return new ResponseEntity<>(runbookRepository.getOne(runbookId), HttpStatus.OK);
+        // TODO: Retrieve from query model
+        return new ResponseEntity<>(new RunbookDto(), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Add a new Task to provided Runbook", response = TaskDto.class, tags = {})
@@ -114,11 +111,12 @@ public class RunbooksApiController implements RunbooksApi {
      * Queries
      */
 
-    @ApiOperation(value = "", notes = "Gets the list of `Runbook` objects for the current user. ", response = Runbook.class, responseContainer = "List", tags = {})
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Runbook` objects", response = Runbook.class)})
+    @ApiOperation(value = "", notes = "Gets the list of `Runbook` objects for the current user. ", response = RunbookDto.class, responseContainer = "List", tags = {})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Runbook` objects", response = RunbookDto.class)})
     @RequestMapping(value = "/runbooks", method = RequestMethod.GET)
-    public ResponseEntity<List<Runbook>> getAllRunbooks() {
-        return new ResponseEntity<>(runbookRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<RunbookDto>> getAllRunbooks() {
+        // TODO: Retrieve from query model
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
     @ApiOperation(value = "", notes = "Gets the list of Tasks for a Runbook. ", response = TaskDto.class, responseContainer = "List", tags = {})
