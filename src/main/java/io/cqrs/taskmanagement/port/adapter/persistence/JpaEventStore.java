@@ -12,9 +12,10 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Observable;
 
 @Component
-public class JpaEventStore implements EventStore {
+public class JpaEventStore extends Observable implements EventStore {
 
     private JpaEventStoreRepository eventStoreRepository;
 
@@ -40,6 +41,10 @@ public class JpaEventStore implements EventStore {
             JpaStoredEvent storedEvent = new JpaStoredEvent(aggregateId, eventSerialization, new Date(), event.getClass().getName());
 
             eventStoreRepository.save(storedEvent);
+
+            // Notify subscribers
+            this.setChanged();
+            this.notifyObservers(event);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

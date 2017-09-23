@@ -2,6 +2,7 @@ package io.cqrs.taskmanagement.port.adapter.restapi;
 
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStoreRepository;
+import io.cqrs.taskmanagement.read.model.runbook.TaskRepository;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +33,13 @@ public class RunbooksApiControllerWebIntegrationTest {
     @Autowired
     private JpaEventStoreRepository eventStoreRepository;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
     @After
     public void tearDown() {
         eventStoreRepository.deleteAll();
+        taskRepository.deleteAll();
     }
 
     @Test
@@ -63,6 +68,25 @@ public class RunbooksApiControllerWebIntegrationTest {
         assertThat(eventStoreRepository.count()).isEqualTo(2);
         assertThat(eventStoreRepository.findAll().get(1).getAggregateId()).isEqualTo(runbookId);
         assertThat(eventStoreRepository.findAll().get(1).getTypeName()).contains("TaskAdded");
+    }
+
+    @Test
+    public void createTask_when_success_then_read_model_persists_a_task_entity() {
+        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
+        restTemplate.postForObject(RUNBOOKS_URL, request, Runbook.class);
+
+        String runbookId = eventStoreRepository.findAll().get(0).getAggregateId();
+        String url = RUNBOOKS_URL + "/" + runbookId + "/tasks";
+        TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
+        HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
+
+        ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.POST, createTaskRequest, TaskDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(taskRepository.count()).isEqualTo(1);
+        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getRunbookId()).isEqualTo(runbookId);
+        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getName()).isEqualTo(TASK_NAME);
+        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getAssigneeId()).isEqualTo(OWNER_ID);
     }
 
 //    @Test

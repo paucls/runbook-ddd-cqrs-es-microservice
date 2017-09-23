@@ -13,6 +13,9 @@ public class TaskEntity {
     private String description;
     private String status;
 
+    private TaskEntity() {
+    }
+
     public TaskEntity(String runbookId, String taskId, String assigneeId, String name, String description, String status) {
         this.runbookId = runbookId;
         this.taskId = taskId;
