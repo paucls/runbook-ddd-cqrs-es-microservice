@@ -3,7 +3,7 @@
 A sample microservice with CQRS and Event Sourcing architecture. Implemented in Java and Spring Boot.
 
 ## The Domain
-For this sample application, we'll work in a operations team domain. Our focus will be on the concept of a **Runbook** wich tracks tasks. 
+For this sample application, we'll work in a operations team domain. Our focus will be on the concept of a **Runbook** wich tracks **Tasks**. 
 
 ## Architecture
 CQRS and Event Sourcing architecture
