@@ -5,6 +5,10 @@ A sample microservice with CQRS and Event Sourcing architecture. Implemented in 
 ## The Domain
 For this sample application, we'll work in a operations team domain. Our focus will be on the concept of a **Runbook** wich tracks tasks. 
 
+## Architecture
+CQRS and Event Sourcing architecture
+![CQRS+ES Architecture](docs/ddd-cqrs-es-architecture.png)
+
 ## Overview  
 Start your server as an simple java application  
 
