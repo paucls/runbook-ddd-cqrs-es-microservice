@@ -1,74 +1,79 @@
 package io.cqrs.taskmanagement.application;
 
-import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 import io.cqrs.taskmanagement.domain.model.runbook.AddTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
-import io.cqrs.taskmanagement.port.adapter.persistence.repository.RunbookRepository;
+import io.cqrs.taskmanagement.event.sourcing.EventStore;
+import io.cqrs.taskmanagement.event.sourcing.EventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RunbookApplicationService {
 
-    @Autowired
-    private DomainEventPublisher eventPublisher;
+    private EventStore eventStore;
 
     @Autowired
-    private RunbookRepository runbookRepository;
+    public RunbookApplicationService(EventStore eventStore) {
+        this.eventStore = eventStore;
+    }
 
     public void createRunbook(CreateRunbook createRunbook) {
         // Dispatch Create Runbook
-        Runbook runbook = new Runbook(createRunbook, eventPublisher);
+        Runbook runbook = new Runbook(createRunbook);
 
         // Persist
-        runbookRepository.save(runbook);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), 0); // Another option is to introduce a EventSourcedRepository and handle this inside the save method
     }
 
     public void addTask(AddTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Add Task
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void startTask(StartTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void completeTask(CompleteTask c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 
     public void completeRunbook(CompleteRunbook c) {
         // Retrieve Aggregate
-        Runbook runbook = runbookRepository.getOne(c.getRunbookId());
+        EventStream eventStream = eventStore.loadEventStream(c.getRunbookId());
+        Runbook runbook = new Runbook(eventStream);
 
         // Dispatch Command
         runbook.handle(c);
 
         // Persist
-        runbookRepository.save(runbook);
+        eventStore.appendToStream(runbook.getRunbookId(), runbook.getUncommitedEvents(), eventStream.getVersion());
     }
 }

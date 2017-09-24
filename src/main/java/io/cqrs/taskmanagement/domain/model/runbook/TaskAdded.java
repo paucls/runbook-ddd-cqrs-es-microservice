@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class TaskAdded implements DomainEvent {
+    String runbookId;
     String taskId;
     String name;
     String description;

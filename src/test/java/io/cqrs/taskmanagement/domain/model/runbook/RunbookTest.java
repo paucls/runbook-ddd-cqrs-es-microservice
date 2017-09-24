@@ -1,11 +1,9 @@
 package io.cqrs.taskmanagement.domain.model.runbook;
 
-import io.cqrs.taskmanagement.domain.model.DomainEventPublisher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -22,7 +20,6 @@ public class RunbookTest {
     private static final String TASK_DESCRIPTION = "description";
     private static final String USER_ID = "user-id";
 
-    private DomainEventPublisher eventPublisherMock;
     private Runbook runbook;
 
     @Rule
@@ -30,17 +27,16 @@ public class RunbookTest {
 
     @Before
     public void setup() {
-        eventPublisherMock = Mockito.mock(DomainEventPublisher.class);
-        runbook = new Runbook(eventPublisherMock);
+        runbook = new Runbook();
     }
 
     @Test
     public void can_create_runbook() {
         // When
-        Runbook newRunbook = new Runbook(new CreateRunbook(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID), eventPublisherMock);
+        Runbook newRunbook = new Runbook(new CreateRunbook(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
+        assertThat(newRunbook.getUncommitedEvents().get(0), is(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID)));
 
         // Assert aggregate state is initialized properly
         assertThat(newRunbook.getProjectId(), is(PROJECT_ID)); // TODO do we really need to be explicit asserting this here?
@@ -59,7 +55,7 @@ public class RunbookTest {
         runbook.handle(new AddTask(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID)));
         assertThat(runbook.getTasks().size(), is(1)); // TODO do we really need this?
     }
 
@@ -67,20 +63,20 @@ public class RunbookTest {
     public void can_start_task() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         // When
         runbook.handle(new StartTask(RUNBOOK_ID, TASK_ID, USER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new TaskMarkedInProgress(TASK_ID));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskMarkedInProgress(TASK_ID)));
     }
 
     @Test
     public void cannot_start_task_assigned_to_different_user() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         exception.expect(TaskAssignedToDifferentUserException.class);
 
@@ -92,21 +88,21 @@ public class RunbookTest {
     public void can_complete_task() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskMarkedInProgress(TASK_ID));
 
         // When
         runbook.handle(new CompleteTask(RUNBOOK_ID, TASK_ID, USER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new TaskCompleted(TASK_ID, USER_ID));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new TaskCompleted(TASK_ID, USER_ID)));
     }
 
     @Test
     public void cannot_complete_task_assigned_to_different_user() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskMarkedInProgress(TASK_ID));
 
         exception.expect(TaskAssignedToDifferentUserException.class);
@@ -119,7 +115,7 @@ public class RunbookTest {
     public void cannot_complete_task_that_is_not_started() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, OWNER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
 
         exception.expect(CanOnlyCompleteInProgressTaskException.class);
 
@@ -147,7 +143,7 @@ public class RunbookTest {
         runbook.handle(new CompleteRunbook(RUNBOOK_ID, USER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new RunbookCompleted(RUNBOOK_ID));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new RunbookCompleted(RUNBOOK_ID)));
         assertThat(runbook.isCompleted(), is(true));
     }
 
@@ -155,8 +151,8 @@ public class RunbookTest {
     public void can_not_complete_runbook_with_pending_tasks() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded("task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID));
-        runbook.apply(new TaskAdded("task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, "task-id-1", TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, "task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskCompleted("task-id-1", USER_ID));
 
         exception.expect(RunBookWithPendingTasksException.class);
@@ -169,14 +165,14 @@ public class RunbookTest {
     public void can_complete_runbook_with_all_tasks_completed() {
         // Given
         runbook.apply(new RunbookCreated(PROJECT_ID, RUNBOOK_ID, RUNBOOK_NAME, USER_ID));
-        runbook.apply(new TaskAdded(TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
+        runbook.apply(new TaskAdded(RUNBOOK_ID, TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskCompleted(TASK_ID, USER_ID));
 
         // When
         runbook.handle(new CompleteRunbook(RUNBOOK_ID, USER_ID));
 
         // Then
-        verify(eventPublisherMock).publish(new RunbookCompleted(RUNBOOK_ID));
+        assertThat(runbook.getUncommitedEvents().get(0), is(new RunbookCompleted(RUNBOOK_ID)));
         assertThat(runbook.isCompleted(), is(true));
     }
 }

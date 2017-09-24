@@ -2,32 +2,18 @@ package io.cqrs.taskmanagement.domain.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.Aggregate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
 public class Task implements Aggregate {
     private static final String OPENED = "OPEN";
     private static final String IN_PROGRESS = "IN_PROGRESS";
     private static final String COMPLETED = "COMPLETED";
 
-    @Id
     private String taskId;
-
-    @Column(name = "runbook_id")
-    private String runbookId;
-
     private String assigneeId;
     private String name;
     private String description;
     private String status;
 
-    // constructor needed for JPA persistence
-    public Task() {
-    }
-
-    public Task(String taskId, String name, String description, String assigneeId) {
+    Task(String taskId, String name, String description, String assigneeId) {
         this.taskId = taskId;
         this.name = name;
         this.description = description;
@@ -37,10 +23,6 @@ public class Task implements Aggregate {
 
     public String getTaskId() {
         return taskId;
-    }
-
-    public String getRunbookId() {
-        return runbookId;
     }
 
     public String getAssigneeId() {
