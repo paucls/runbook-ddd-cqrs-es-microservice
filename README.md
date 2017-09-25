@@ -1,4 +1,4 @@
-# runbook-ddd-cqrs-microservice
+# runbook-ddd-cqrs-es-microservice
 
 A sample microservice with CQRS and Event Sourcing architecture. Implemented in Java and Spring Boot.
 
