@@ -1,7 +1,7 @@
 package io.cqrs.taskmanagement.read.model.runbook;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cqrs.taskmanagement.port.adapter.restapi.TaskDto;
+import io.cqrs.taskmanagement.api.runbook.TaskDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

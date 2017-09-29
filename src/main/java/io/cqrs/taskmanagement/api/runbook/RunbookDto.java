@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.restapi;
+package io.cqrs.taskmanagement.api.runbook;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.persistence;
+package io.cqrs.taskmanagement.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cqrs.taskmanagement.domain.model.DomainEvent;

@@ -1,7 +1,7 @@
-package io.cqrs.taskmanagement.port.adapter.restapi;
+package io.cqrs.taskmanagement.api.runbook;
 
 import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
-import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStoreRepository;
+import io.cqrs.taskmanagement.persistence.JpaEventStoreRepository;
 import io.cqrs.taskmanagement.read.model.runbook.TaskEntity;
 import io.cqrs.taskmanagement.read.model.runbook.TaskRepository;
 import org.junit.After;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RunbooksApiControllerWebIntegrationTest {
+public class RunbooksControllerComponentTest {
 
     private static final String RUNBOOKS_URL = "/runbooks";
     private static final String PROJECT_ID = "project-id";
@@ -73,7 +73,7 @@ public class RunbooksApiControllerWebIntegrationTest {
     }
 
     @Test
-    public void createTask_when_success_then_read_model_persists_a_task_entity() {
+    public void createTask_when_success_then_read_model_projection_persists_a_task_entity() {
         HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
         restTemplate.postForObject(RUNBOOKS_URL, request, Runbook.class);
 
@@ -86,9 +86,10 @@ public class RunbooksApiControllerWebIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(taskRepository.count()).isOne();
-        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getRunbookId()).isEqualTo(runbookId);
-        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getName()).isEqualTo(TASK_NAME);
-        assertThat(taskRepository.findTasksByRunbookId(runbookId).get(0).getAssigneeId()).isEqualTo(OWNER_ID);
+        TaskEntity taskEntity = taskRepository.findTasksByRunbookId(runbookId).get(0);
+        assertThat(taskEntity.getRunbookId()).isEqualTo(runbookId);
+        assertThat(taskEntity.getName()).isEqualTo(TASK_NAME);
+        assertThat(taskEntity.getAssigneeId()).isEqualTo(OWNER_ID);
     }
 
     @Test

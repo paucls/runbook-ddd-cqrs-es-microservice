@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.configuration;
+package io.cqrs.taskmanagement.api.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ public class SwaggerDocumentationConfig {
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Runbook API")
-                .description("A sample microservice implemented with a CQRS architecture")
+                .description("A sample microservice implemented with a CQRS+ES architecture")
                 .version("1.0.0")
                 .build();
     }
@@ -25,7 +25,7 @@ public class SwaggerDocumentationConfig {
     public Docket customImplementation() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("io.cqrs.taskmanagement.port.adapter.restapi"))
+                .apis(RequestHandlerSelectors.basePackage("io.cqrs.taskmanagement.api"))
                 .build()
                 .directModelSubstitute(org.joda.time.LocalDate.class, java.sql.Date.class)
                 .directModelSubstitute(org.joda.time.DateTime.class, java.util.Date.class)

@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.restapi;
+package io.cqrs.taskmanagement.api.configuration;
 
 import io.cqrs.taskmanagement.domain.model.DomainException;
 import org.slf4j.Logger;

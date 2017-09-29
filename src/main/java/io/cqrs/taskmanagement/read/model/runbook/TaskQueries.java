@@ -1,6 +1,6 @@
 package io.cqrs.taskmanagement.read.model.runbook;
 
-import io.cqrs.taskmanagement.port.adapter.restapi.TaskDto;
+import io.cqrs.taskmanagement.api.runbook.TaskDto;
 
 import java.util.List;
 

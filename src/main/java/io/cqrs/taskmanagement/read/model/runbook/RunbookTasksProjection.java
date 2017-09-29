@@ -1,7 +1,7 @@
 package io.cqrs.taskmanagement.read.model.runbook;
 
 import io.cqrs.taskmanagement.domain.model.runbook.TaskAdded;
-import io.cqrs.taskmanagement.port.adapter.persistence.JpaEventStore;
+import io.cqrs.taskmanagement.persistence.JpaEventStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

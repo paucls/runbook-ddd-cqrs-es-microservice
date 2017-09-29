@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.persistence;
+package io.cqrs.taskmanagement.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

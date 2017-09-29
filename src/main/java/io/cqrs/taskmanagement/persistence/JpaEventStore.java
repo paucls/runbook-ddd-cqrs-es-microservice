@@ -1,4 +1,4 @@
-package io.cqrs.taskmanagement.port.adapter.persistence;
+package io.cqrs.taskmanagement.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
