@@ -39,7 +39,7 @@ public class RunbooksController {
      */
 
     @ApiOperation(value = "Create new Runbook", response = RunbookDto.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Runbook created successfully", response = RunbookDto.class)})
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Runbook created successfully", response = RunbookDto.class)})
     @RequestMapping(value = "/runbooks", method = RequestMethod.POST)
     public ResponseEntity<RunbookDto> createRunbook(@RequestBody RunbookDto runbookDto) {
         String runbookId = UUID.randomUUID().toString();
@@ -52,7 +52,8 @@ public class RunbooksController {
         ));
 
         // TODO: Retrieve from query model
-        return new ResponseEntity<>(new RunbookDto(), HttpStatus.OK);
+        runbookDto.setRunbookId(runbookId);
+        return new ResponseEntity<>(runbookDto, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Complete Runbook", response = RunbookDto.class)
@@ -68,7 +69,7 @@ public class RunbooksController {
     }
 
     @ApiOperation(value = "Add new Task to Runbook", response = TaskDto.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Task added successfully", response = TaskDto.class)})
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Task added successfully", response = TaskDto.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.POST)
     public ResponseEntity<TaskDto> addTask(@PathVariable String runbookId, @RequestBody TaskDto taskDto) {
         String taskId = UUID.randomUUID().toString();
@@ -81,8 +82,8 @@ public class RunbooksController {
                 taskDto.getAssigneeId()));
 
         // TODO: Retrieve Task from query model
-        TaskDto createdTaskDto = new TaskDto();
-        return new ResponseEntity<>(createdTaskDto, HttpStatus.OK);
+        taskDto.setTaskId(taskId);
+        return new ResponseEntity<>(taskDto, HttpStatus.CREATED);
     }
 
     @ApiOperation("Start Task")

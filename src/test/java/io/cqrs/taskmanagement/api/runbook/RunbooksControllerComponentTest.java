@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -48,8 +47,9 @@ public class RunbooksControllerComponentTest {
     public void createRunbook_when_success_then_persists_runbookCreated_event() {
         HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
 
-        restTemplate.postForObject(RUNBOOKS_URL, request, Runbook.class);
+        ResponseEntity<RunbookDto> response = restTemplate.postForEntity(RUNBOOKS_URL, request, RunbookDto.class);
 
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(eventStoreRepository.count()).isOne();
         assertThat(eventStoreRepository.findAll().get(0).getTypeName()).contains("RunbookCreated");
     }
@@ -64,9 +64,9 @@ public class RunbooksControllerComponentTest {
         TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
         HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
 
-        ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.POST, createTaskRequest, TaskDto.class);
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, createTaskRequest, TaskDto.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(eventStoreRepository.count()).isEqualTo(2);
         assertThat(eventStoreRepository.findAll().get(1).getAggregateId()).isEqualTo(runbookId);
         assertThat(eventStoreRepository.findAll().get(1).getTypeName()).contains("TaskAdded");
@@ -82,9 +82,9 @@ public class RunbooksControllerComponentTest {
         TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
         HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
 
-        ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.POST, createTaskRequest, TaskDto.class);
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, createTaskRequest, TaskDto.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(taskRepository.count()).isOne();
         TaskEntity taskEntity = taskRepository.findTasksByRunbookId(runbookId).get(0);
         assertThat(taskEntity.getRunbookId()).isEqualTo(runbookId);

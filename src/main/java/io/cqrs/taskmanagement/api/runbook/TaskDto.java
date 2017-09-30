@@ -2,8 +2,10 @@ package io.cqrs.taskmanagement.api.runbook;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class TaskDto {
     public String runbookId;
@@ -12,9 +14,6 @@ public class TaskDto {
     public String name;
     public String description;
     public String status;
-
-    public TaskDto() {
-    }
 
     public TaskDto(String runbookId, String assigneeId, String name) {
         this.runbookId = runbookId;
