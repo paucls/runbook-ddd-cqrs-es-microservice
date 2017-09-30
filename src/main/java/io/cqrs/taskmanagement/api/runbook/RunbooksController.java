@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Controller
 public class RunbooksController {
 
+    // TODO: Current user will come from a Service
     private static final String SAMPLE_USER_ID = "user-id";
 
     @Autowired
@@ -48,7 +48,7 @@ public class RunbooksController {
                 runbookDto.getProjectId(),
                 runbookId,
                 runbookDto.getName(),
-                runbookDto.getOwnerId()
+                SAMPLE_USER_ID
         ));
 
         // TODO: Retrieve from query model

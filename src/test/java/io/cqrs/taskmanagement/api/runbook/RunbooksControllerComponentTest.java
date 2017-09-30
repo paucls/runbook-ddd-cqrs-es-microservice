@@ -63,7 +63,8 @@ public class RunbooksControllerComponentTest {
 
     @Test
     public void createRunbook_when_success_then_read_model_projection_persists_a_runbook_entity() {
-        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
+        String userId = "user-id";
+        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, userId));
 
         ResponseEntity<RunbookDto> response = restTemplate.postForEntity(RUNBOOKS_URL, request, RunbookDto.class);
 
@@ -72,7 +73,21 @@ public class RunbooksControllerComponentTest {
         RunbookEntity runbookEntity = runbookRepository.findOne(response.getBody().runbookId);
         assertThat(runbookEntity.getProjectId()).isEqualTo(PROJECT_ID);
         assertThat(runbookEntity.getName()).isEqualTo(RUNBOOK_NAME);
-        assertThat(runbookEntity.getOwnerId()).isEqualTo(OWNER_ID);
+        assertThat(runbookEntity.getOwnerId()).isEqualTo(userId);
+    }
+
+    @Test
+    public void closeRunbook_when_success_then_read_model_projection_removes_runbook_entity() {
+        RunbookDto runbook = restTemplate.postForObject(
+                RUNBOOKS_URL,
+                new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID)),
+                RunbookDto.class);
+        assertThat(runbookRepository.count()).isOne();
+
+        String url = RUNBOOKS_URL + "/" + runbook.getRunbookId() + "/actions/complete";
+        restTemplate.postForLocation(url, RunbookDto.class);
+
+        assertThat(runbookRepository.count()).isZero();
     }
 
     @Test

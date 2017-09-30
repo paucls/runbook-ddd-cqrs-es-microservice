@@ -1,5 +1,6 @@
 package io.cqrs.taskmanagement.read.model.runbook;
 
+import io.cqrs.taskmanagement.domain.model.runbook.RunbookCompleted;
 import io.cqrs.taskmanagement.domain.model.runbook.RunbookCreated;
 import io.cqrs.taskmanagement.persistence.JpaEventStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ public class UncompletedRunbooksProjection implements Observer {
     }
 
     @Override
-    public void update(Observable observable, Object object) {
+    public void update(Observable observable, Object event) {
         // Handles only Events this Projection cares about
-        if (object instanceof RunbookCreated) {
-            handleRunbookCreated((RunbookCreated) object);
+        if (event instanceof RunbookCreated) {
+            handleRunbookCreated((RunbookCreated) event);
+        } else if (event instanceof RunbookCompleted) {
+            handleRunbookCompleted((RunbookCompleted) event);
         }
     }
 
@@ -46,4 +49,7 @@ public class UncompletedRunbooksProjection implements Observer {
         runbookRepository.save(runbook);
     }
 
+    private void handleRunbookCompleted(RunbookCompleted event) {
+        runbookRepository.delete(event.getRunbookId());
+    }
 }

@@ -25,10 +25,10 @@ public class RunbookTasksProjection implements Observer {
     }
 
     @Override
-    public void update(Observable observable, Object object) {
+    public void update(Observable observable, Object event) {
         // Handles only Events this Projection cares about
-        if (object instanceof TaskAdded) {
-            handleTaskAdded((TaskAdded) object);
+        if (event instanceof TaskAdded) {
+            handleTaskAdded((TaskAdded) event);
         }
     }
 
