@@ -48,7 +48,7 @@ public class RunbooksController {
                 runbookDto.getProjectId(),
                 runbookId,
                 runbookDto.getName(),
-                SAMPLE_USER_ID
+                runbookDto.getOwnerId()
         ));
 
         // TODO: Retrieve from query model

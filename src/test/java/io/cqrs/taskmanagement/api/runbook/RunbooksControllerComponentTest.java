@@ -62,6 +62,20 @@ public class RunbooksControllerComponentTest {
     }
 
     @Test
+    public void createRunbook_when_success_then_read_model_projection_persists_a_runbook_entity() {
+        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
+
+        ResponseEntity<RunbookDto> response = restTemplate.postForEntity(RUNBOOKS_URL, request, RunbookDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(runbookRepository.count()).isOne();
+        RunbookEntity runbookEntity = runbookRepository.findOne(response.getBody().runbookId);
+        assertThat(runbookEntity.getProjectId()).isEqualTo(PROJECT_ID);
+        assertThat(runbookEntity.getName()).isEqualTo(RUNBOOK_NAME);
+        assertThat(runbookEntity.getOwnerId()).isEqualTo(OWNER_ID);
+    }
+
+    @Test
     public void createTask_when_success_then_persists_taskAdded_event() {
         RunbookDto runbook = restTemplate.postForObject(
                 RUNBOOKS_URL,
