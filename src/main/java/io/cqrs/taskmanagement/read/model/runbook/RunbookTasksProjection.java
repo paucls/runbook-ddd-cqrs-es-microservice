@@ -33,6 +33,9 @@ public class RunbookTasksProjection implements Observer {
     }
 
     private void handleTaskAdded(TaskAdded event) {
+
+        // For now persisting read models as Entities, but the DTOs could be persisted directly to file system, etc.
+
         TaskEntity task = new TaskEntity(
                 event.getRunbookId(),
                 event.getTaskId(),

@@ -6,7 +6,7 @@ import io.cqrs.taskmanagement.domain.model.runbook.CompleteRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.CompleteTask;
 import io.cqrs.taskmanagement.domain.model.runbook.CreateRunbook;
 import io.cqrs.taskmanagement.domain.model.runbook.StartTask;
-import io.cqrs.taskmanagement.read.model.runbook.TaskQueries;
+import io.cqrs.taskmanagement.read.model.runbook.RunbookQueries;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -32,7 +32,7 @@ public class RunbooksController {
     private RunbookApplicationService runbookApplicationService;
 
     @Autowired
-    private TaskQueries taskQueries;
+    private RunbookQueries runbookQueries;
 
     /**
      * Commands
@@ -116,18 +116,17 @@ public class RunbooksController {
      * Queries
      */
 
-    @ApiOperation(value = "Get Runbooks", notes = "Gets the list of `Runbook` objects for the current user. ", response = RunbookDto.class, responseContainer = "List")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Runbook` objects", response = RunbookDto.class)})
+    @ApiOperation(value = "Get Uncompleted Runbooks", response = RunbookDto.class, responseContainer = "List")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "A list of `RunbookDto` objects", response = RunbookDto.class)})
     @RequestMapping(value = "/runbooks", method = RequestMethod.GET)
-    public ResponseEntity<List<RunbookDto>> getAllRunbooks() {
-        // TODO: Retrieve from query model
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+    public ResponseEntity<List<RunbookDto>> getUncompletedRunbooks() {
+        return new ResponseEntity<>(runbookQueries.uncompletedRunbooks(), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Tasks for Runbook", response = TaskDto.class, responseContainer = "List")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "An array of `Task` objects", response = TaskDto.class)})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "A list of `TaskDto` objects", response = TaskDto.class)})
     @RequestMapping(value = "/runbooks/{runbookId}/tasks", method = RequestMethod.GET)
     public ResponseEntity<List<TaskDto>> getTasksForRunbook(@PathVariable String runbookId) {
-        return new ResponseEntity<>(taskQueries.tasksForRunbook(runbookId), HttpStatus.OK);
+        return new ResponseEntity<>(runbookQueries.tasksForRunbook(runbookId), HttpStatus.OK);
     }
 }

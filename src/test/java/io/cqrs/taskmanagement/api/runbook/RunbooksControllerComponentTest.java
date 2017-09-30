@@ -1,7 +1,8 @@
 package io.cqrs.taskmanagement.api.runbook;
 
-import io.cqrs.taskmanagement.domain.model.runbook.Runbook;
 import io.cqrs.taskmanagement.persistence.JpaEventStoreRepository;
+import io.cqrs.taskmanagement.read.model.runbook.RunbookRepository;
+import io.cqrs.taskmanagement.read.model.runbook.RunbookEntity;
 import io.cqrs.taskmanagement.read.model.runbook.TaskEntity;
 import io.cqrs.taskmanagement.read.model.runbook.TaskRepository;
 import org.junit.After;
@@ -35,11 +36,15 @@ public class RunbooksControllerComponentTest {
     private JpaEventStoreRepository eventStoreRepository;
 
     @Autowired
+    private RunbookRepository runbookRepository;
+
+    @Autowired
     private TaskRepository taskRepository;
 
     @After
     public void tearDown() {
         eventStoreRepository.deleteAll();
+        runbookRepository.deleteAll();
         taskRepository.deleteAll();
     }
 
@@ -97,7 +102,20 @@ public class RunbooksControllerComponentTest {
     }
 
     @Test
-    public void getTasksForRunbook_when_tasks_exists_on_read_model_then_returns_them() {
+    public void getUncompletedRunbooks_when_runbooks_not_completed_exist_on_read_model_then_returns_them() {
+        RunbookEntity runbook1 = new RunbookEntity("runbook-id-1", PROJECT_ID, "runbook-name-1", OWNER_ID, false);
+        RunbookEntity runbook2 = new RunbookEntity("runbook-id-2", PROJECT_ID, "runbook-name-2", OWNER_ID, false);
+        runbookRepository.save(runbook1);
+        runbookRepository.save(runbook2);
+
+        RunbookDto[] runbooks = restTemplate.getForObject(RUNBOOKS_URL, RunbookDto[].class);
+
+        assertThat(runbooks).hasSize(2);
+        assertThat(runbooks).extracting("name").contains("runbook-name-1", "runbook-name-2");
+    }
+
+    @Test
+    public void getTasksForRunbook_when_tasks_exist_on_read_model_then_returns_them() {
         TaskEntity task1 = new TaskEntity(RUNBOOK_ID, "task-id-1", OWNER_ID, "task-name-1", "task-description-1", null);
         TaskEntity task2 = new TaskEntity(RUNBOOK_ID, "task-id-2", OWNER_ID, "task-name-2", "task-description-2", null);
         TaskEntity task3 = new TaskEntity("another-runbook", "task-id-3", OWNER_ID, "task-name-3", "task-description-3", null);
