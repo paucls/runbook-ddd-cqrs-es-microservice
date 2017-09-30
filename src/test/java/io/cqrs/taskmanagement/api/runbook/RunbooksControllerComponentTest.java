@@ -50,21 +50,24 @@ public class RunbooksControllerComponentTest {
         ResponseEntity<RunbookDto> response = restTemplate.postForEntity(RUNBOOKS_URL, request, RunbookDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().runbookId).isNotNull();
         assertThat(eventStoreRepository.count()).isOne();
         assertThat(eventStoreRepository.findAll().get(0).getTypeName()).contains("RunbookCreated");
+        assertThat(eventStoreRepository.findAll().get(0).getAggregateId()).isEqualTo(response.getBody().runbookId);
     }
 
     @Test
     public void createTask_when_success_then_persists_taskAdded_event() {
-        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
-        restTemplate.postForObject(RUNBOOKS_URL, request, Runbook.class);
+        RunbookDto runbook = restTemplate.postForObject(
+                RUNBOOKS_URL,
+                new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID)),
+                RunbookDto.class);
 
-        String runbookId = eventStoreRepository.findAll().get(0).getAggregateId();
+        String runbookId = runbook.getRunbookId();
         String url = RUNBOOKS_URL + "/" + runbookId + "/tasks";
-        TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
-        HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
+        HttpEntity<TaskDto> request = new HttpEntity<>(new TaskDto(runbookId, OWNER_ID, TASK_NAME));
 
-        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, createTaskRequest, TaskDto.class);
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, request, TaskDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(eventStoreRepository.count()).isEqualTo(2);
@@ -74,15 +77,16 @@ public class RunbooksControllerComponentTest {
 
     @Test
     public void createTask_when_success_then_read_model_projection_persists_a_task_entity() {
-        HttpEntity<RunbookDto> request = new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID));
-        restTemplate.postForObject(RUNBOOKS_URL, request, Runbook.class);
+        RunbookDto runbook = restTemplate.postForObject(
+                RUNBOOKS_URL,
+                new HttpEntity<>(new RunbookDto(PROJECT_ID, RUNBOOK_NAME, OWNER_ID)),
+                RunbookDto.class);
 
-        String runbookId = eventStoreRepository.findAll().get(0).getAggregateId();
+        String runbookId = runbook.getRunbookId();
         String url = RUNBOOKS_URL + "/" + runbookId + "/tasks";
-        TaskDto taskDto = new TaskDto(runbookId, OWNER_ID, TASK_NAME);
-        HttpEntity<TaskDto> createTaskRequest = new HttpEntity<>(taskDto);
+        HttpEntity<TaskDto> request = new HttpEntity<>(new TaskDto(runbookId, OWNER_ID, TASK_NAME));
 
-        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, createTaskRequest, TaskDto.class);
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(url, request, TaskDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(taskRepository.count()).isOne();
