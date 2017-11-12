@@ -117,7 +117,7 @@ public class Runbook extends EventSourcedAggregate {
         boolean hasPendingTasks = tasks.entrySet()
                 .stream()
                 .anyMatch(entry -> !entry.getValue().isClosed());
-        if (hasPendingTasks) throw new RunBookWithPendingTasksException();
+        if (hasPendingTasks) throw new RunbookWithPendingTasksException();
     }
 
     private void verifyAssignee(String taskId, String userId) {

@@ -155,7 +155,7 @@ public class RunbookTest {
         runbook.apply(new TaskAdded(RUNBOOK_ID, "task-id-2", TASK_NAME, TASK_DESCRIPTION, USER_ID));
         runbook.apply(new TaskCompleted("task-id-1", USER_ID));
 
-        exception.expect(RunBookWithPendingTasksException.class);
+        exception.expect(RunbookWithPendingTasksException.class);
 
         // When
         runbook.handle(new CompleteRunbook(RUNBOOK_ID, USER_ID));
